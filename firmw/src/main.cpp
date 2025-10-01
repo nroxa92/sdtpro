@@ -6,7 +6,7 @@
 
 // --- Mrežne Postavke ---
 const char* ssid = "SeaDoo_Tool_AP";
-const char* password = "pass1234";
+const char* password = "";
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
