@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sdmt_final/data/models.dart';
+import 'package:sdmt_final/services/websocket_service.dart';
 
 class TestScreen extends StatefulWidget {
   const TestScreen({super.key});
@@ -14,7 +15,7 @@ class _TestScreenState extends State<TestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Dohvaćamo cijeli 'sensor' objekt koji je poslan kao argument
+    // Dohvaćamo cijeli 'sensor' objekt koji je poslan kao argument s prethodnog ekrana
     final sensor = ModalRoute.of(context)!.settings.arguments as BaseSensorData;
 
     return Scaffold(
@@ -22,26 +23,35 @@ class _TestScreenState extends State<TestScreen> {
         title: Text(sensor.name),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         children: [
           _buildInfoCard(sensor),
-          if (sensor.pinout != null) _buildPinoutCard(sensor.pinout!),
-          if (sensor.resistanceTest != null) _buildResistanceTestCard(sensor.resistanceTest!),
-          // TODO: Dodati kartice za ostale tipove testova (Voltage, Current, itd.)
+          if (sensor.pinout != null && sensor.pinout!.isNotEmpty) 
+            _buildPinoutCard(sensor.pinout!),
+          
+          if (sensor.resistanceTest != null) 
+            _buildResistanceTestCard(sensor.resistanceTest!),
+          
+          // Ovdje možete dodati izgradnju kartica za ostale tipove testova
+          // if (sensor.voltageTest != null) _buildVoltageTestCard(sensor.voltageTest!),
+          // if (sensor is NtcSensor) _buildNtcTableCard(sensor),
         ],
       ),
     );
   }
 
+  // Prikazuje osnovne informacije o senzoru
   Widget _buildInfoCard(BaseSensorData sensor) {
     return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Informacije o komponenti", style: Theme.of(context).textTheme.titleLarge),
-            const Divider(height: 20),
+            const Divider(height: 20, thickness: 1),
             _InfoRow(title: "ID:", value: sensor.id),
             _InfoRow(title: "Tip:", value: sensor.typeDescription),
             if (sensor.principleOfOperation.isNotEmpty)
@@ -52,33 +62,40 @@ class _TestScreenState extends State<TestScreen> {
     );
   }
   
+  // Prikazuje pinout senzora
   Widget _buildPinoutCard(List<PinoutDetail> pinout) {
     return Card(
-      margin: const EdgeInsets.only(top: 16),
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Pinout", style: Theme.of(context).textTheme.titleLarge),
-            const Divider(height: 20),
-            ...pinout.map((p) => _InfoRow(title: "Pin ${p.pin}:", value: p.description)).toList(),
+            const Divider(height: 20, thickness: 1),
+            // Koristimo Column umjesto ...spread operatora za bolju kontrolu
+            Column(
+              children: pinout.map((p) => _InfoRow(title: "Pin ${p.pin}:", value: p.description)).toList(),
+            ),
           ],
         ),
       ),
     );
   }
 
+  // Prikazuje karticu za test otpora
   Widget _buildResistanceTestCard(ResistanceTest test) {
     return Card(
-      margin: const EdgeInsets.only(top: 16),
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Test Otpora", style: Theme.of(context).textTheme.titleLarge),
-            const Divider(height: 20),
+            const Divider(height: 20, thickness: 1),
             _InfoRow(title: "Referentna vrijednost:", value: "${test.refMin} - ${test.refMax} ${test.unit}"),
             const SizedBox(height: 20),
             Row(
@@ -87,8 +104,8 @@ class _TestScreenState extends State<TestScreen> {
                 Text("Izmjereno: $liveValue", style: Theme.of(context).textTheme.titleMedium),
                 ElevatedButton(
                   onPressed: () {
-                    // TODO: Ovdje pozvati funkciju za pokretanje testa
-                    // SdmTService.instance.sendCommand('START_RESISTANCE_TEST');
+                    // TODO: Ovdje pozvati funkciju za pokretanje testa otpora
+                    // Primjer: SdmTService.instance.sendCommand('START_RESISTANCE_TEST:1,2');
                     debugPrint("Pokreni test otpora...");
                   },
                   child: const Text("Pokreni Test"),
@@ -102,7 +119,7 @@ class _TestScreenState extends State<TestScreen> {
   }
 }
 
-// Pomoćni widget za prikazivanje redaka "Naslov: Vrijednost"
+// Pomoćni widget za elegantan prikaz redaka "Naslov: Vrijednost"
 class _InfoRow extends StatelessWidget {
   final String title;
   final String value;
@@ -115,7 +132,10 @@ class _InfoRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 120, child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold))),
+          SizedBox(
+            width: 120,
+            child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white70))
+          ),
           Expanded(child: Text(value)),
         ],
       ),
