@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sdmt_final/data/models.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:sdmt_final/models/live_data.dart'; // <-- OVA LINIJA JE DODANA
 
 class SdmTService {
   SdmTService._privateConstructor();

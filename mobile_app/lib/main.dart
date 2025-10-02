@@ -18,14 +18,6 @@ void main() {
     ),
   );
 }
-void main() {
-  runApp(
-    Provider(
-      create: (_) => SdmTService.instance,
-      child: const MiniToolApp(),
-    ),
-  );
-}
 
 class MiniToolApp extends StatelessWidget {
   const MiniToolApp({super.key});
@@ -34,15 +26,7 @@ class MiniToolApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'SeaDoo miniTool',
-      theme: ThemeData.dark().copyWith(
-        primaryColor: Colors.teal,
-        scaffoldBackgroundColor: const Color(0xFF222222),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF333333),
-          elevation: 0,
-        ),
-        cardColor: const Color(0xFF333333),
-      ),
+      theme: ThemeData.dark(),
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
@@ -51,10 +35,9 @@ class MiniToolApp extends StatelessWidget {
         '/testScreen': (context) => const TestScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/about': (context) => const AboutScreen(),
-        '/liveData': (context) => const CanLiveScreen(), 
+        '/liveData': (context) => const CanLiveScreen(),
         '/canErrors': (context) => const CanErrorsScreen(),
         '/canTests': (context) => const CanTestsScreen(),
-      
       },
     );
   }

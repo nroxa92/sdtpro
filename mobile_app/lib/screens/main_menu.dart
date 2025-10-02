@@ -22,7 +22,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final categories = groupedSensors.keys.toList();
+    final categories = groupedSensors.keys; // <-- Sitni ispravak, .toList() nije potreban ovdje
     
     return Scaffold(
       appBar: AppBar(
@@ -54,7 +54,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   onPressed: () => Navigator.pushNamed(context, route, arguments: category),
                 ),
               );
-            }).toList(),
+            }),
             const Spacer(),
             _buildBottomControls(),
           ],
