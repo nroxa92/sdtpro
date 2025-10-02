@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:sdmt_final/data/models.dart';
+import 'package:sdmt_final/data/models.dart'; // <-- DODANA LINIJA
 import 'package:sdmt_final/services/websocket_service.dart';
 
 class CanLiveScreen extends StatefulWidget {
@@ -13,20 +13,18 @@ class CanLiveScreen extends StatefulWidget {
 
 class _CanLiveScreenState extends State<CanLiveScreen> {
   final sdmTService = SdmTService.instance;
-  // Mapa koja prati koji su parametri odabrani za graf
   final Map<String, bool> _selectedParameters = {
     'RPM': true,
     'Gas': false,
     'Brzina': false,
   };
-  // Mapa koja čuva povijest podataka za graf
   final Map<String, Queue<FlSpot>> _chartData = {
     'RPM': Queue(),
     'Gas': Queue(),
     'Brzina': Queue(),
   };
   int _xValue = 0;
-  final int _maxDataPoints = 50; // Koliko točaka prikazati na grafu
+  final int _maxDataPoints = 50;
 
   @override
   void initState() {
@@ -43,7 +41,6 @@ class _CanLiveScreenState extends State<CanLiveScreen> {
   void _updateChartData() {
     final data = sdmTService.liveDataNotifier.value;
     
-    // Dodaj nove točke
     _addSpot('RPM', data.rpm);
     _addSpot('Gas', data.throttle);
     _addSpot('Brzina', data.speed);
@@ -53,7 +50,7 @@ class _CanLiveScreenState extends State<CanLiveScreen> {
   }
 
   void _addSpot(String key, double y) {
-    if(y < 0) return; // Ne dodaj nevažeće vrijednosti
+    if(y < 0) return;
     final queue = _chartData[key]!;
     if (queue.length >= _maxDataPoints) {
       queue.removeFirst();
@@ -79,7 +76,6 @@ class _CanLiveScreenState extends State<CanLiveScreen> {
     );
   }
 
-  // Widget za tablicu s podacima
   Widget _buildDataTable(LiveData data) {
     return DataTable(
       columns: const [
@@ -113,7 +109,6 @@ class _CanLiveScreenState extends State<CanLiveScreen> {
     );
   }
 
-  // Widget za graf
   Widget _buildChart() {
     final List<LineChartBarData> lineBarsData = [];
     final List<Color> colors = [Colors.cyan, Colors.lightGreenAccent, Colors.yellow];
