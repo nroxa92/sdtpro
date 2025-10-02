@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart'; // Ključni import koji nedostaje
-import 'package:sdmt_final/data/models.dart';
 import 'package:sdmt_final/data/sensor_database.dart';
 import 'package:sdmt_final/services/websocket_service.dart';
 
