@@ -171,3 +171,53 @@ class ComboSensor extends BaseSensorData {
     super.pinout,
   });
 }
+
+class LiveData {
+  final double rpm;
+  final double throttle;
+  final double ect;
+  final double eot;
+  final double speed;
+  final double fuel;
+  final double map;
+  final double mat;
+  final double egt;
+
+  LiveData({
+    required this.rpm,
+    required this.throttle,
+    required this.ect,
+    required this.eot,
+    required this.speed,
+    required this.fuel,
+    required this.map,
+    required this.mat,
+    required this.egt,
+  });
+
+  factory LiveData.fromJson(Map<String, dynamic> json) {
+    double parseDouble(dynamic value) {
+      if (value is num) return value.toDouble();
+      return -1.0;
+    }
+
+    return LiveData(
+      rpm: parseDouble(json['rpm']),
+      throttle: parseDouble(json['throttle']),
+      ect: parseDouble(json['ect']),
+      eot: parseDouble(json['eot']),
+      speed: parseDouble(json['speed']),
+      fuel: parseDouble(json['fuel']),
+      map: parseDouble(json['map']),
+      mat: parseDouble(json['mat']),
+      egt: parseDouble(json['egt']),
+    );
+  }
+
+  factory LiveData.initial() {
+    return LiveData(
+      rpm: -1, throttle: -1, ect: -1, eot: -1, speed: -1,
+      fuel: -1, map: -1, mat: -1, egt: -1,
+    );
+  }
+}

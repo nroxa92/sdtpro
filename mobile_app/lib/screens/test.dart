@@ -103,7 +103,7 @@ class _TestScreenState extends State<TestScreen> {
                 Text("Izmjereno: $liveValue", style: Theme.of(context).textTheme.titleMedium),
                 ElevatedButton(
                   onPressed: () {
-                    // TODO: Ovdje pozvati funkciju za pokretanje testa otpora
+                    //Ovdje pozvati funkciju za pokretanje testa otpora
                     // Primjer: SdmTService.instance.sendCommand('START_RESISTANCE_TEST:1,2');
                     debugPrint("Pokreni test otpora...");
                   },

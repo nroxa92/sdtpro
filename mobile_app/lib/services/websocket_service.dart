@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sdmt_final/models/live_data.dart'; // <-- KLJUČNA LINIJA KOJA JE NEDOSTAJALA
+import 'package:sdmt_final/data/models.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class SdmTService {
@@ -59,12 +59,16 @@ class SdmTService {
     try {
       final json = jsonDecode(message);
       if (json['rpm'] != null) {
-        liveDataNotifier.value = LiveData.fromJson(json);
-        canActivityNotifier.value = true;
-        _canActivityTimer?.cancel();
-        _canActivityTimer = Timer(const Duration(seconds: 2), () {
-          canActivityNotifier.value = false;
-        });
+        final liveData = LiveData.fromJson(json);
+        liveDataNotifier.value = liveData;
+
+        if (liveData.rpm > -1) {
+          canActivityNotifier.value = true;
+          _canActivityTimer?.cancel();
+          _canActivityTimer = Timer(const Duration(seconds: 2), () {
+            canActivityNotifier.value = false;
+          });
+        }
       }
     } catch(e) {
       debugPrint("Poruka nije LiveData JSON: $message");

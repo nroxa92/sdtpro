@@ -1,8 +1,7 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-// ISPRAVAK: Import mora biti 'live_data.dart', a ne 'models.dart' za ovu klasu
-import 'package:sdmt_final/models/live_data.dart';
+import 'package:sdmt_final/data/models.dart';
 import 'package:sdmt_final/services/websocket_service.dart';
 
 class CanLiveScreen extends StatefulWidget {
@@ -14,16 +13,14 @@ class CanLiveScreen extends StatefulWidget {
 
 class _CanLiveScreenState extends State<CanLiveScreen> {
   final sdmTService = SdmTService.instance;
+  
   final Map<String, bool> _selectedParameters = {
-    'RPM': true,
-    'Gas': false,
-    'Brzina': false,
+    'RPM': true, 'TPS': false, 'Brzina': false, 'ECT': false, 'EOT': false,
   };
   final Map<String, Queue<FlSpot>> _chartData = {
-    'RPM': Queue(),
-    'Gas': Queue(),
-    'Brzina': Queue(),
+    'RPM': Queue(), 'TPS': Queue(), 'Brzina': Queue(), 'ECT': Queue(), 'EOT': Queue(),
   };
+  
   int _xValue = 0;
   final int _maxDataPoints = 50;
 
@@ -43,8 +40,10 @@ class _CanLiveScreenState extends State<CanLiveScreen> {
     final data = sdmTService.liveDataNotifier.value;
     
     _addSpot('RPM', data.rpm);
-    _addSpot('Gas', data.throttle);
+    _addSpot('TPS', data.throttle);
     _addSpot('Brzina', data.speed);
+    _addSpot('ECT', data.ect);
+    _addSpot('EOT', data.eot);
 
     _xValue++;
     if(mounted) setState(() {});
@@ -84,46 +83,47 @@ class _CanLiveScreenState extends State<CanLiveScreen> {
         DataColumn(label: Text('Vrijednost'), numeric: true),
         DataColumn(label: Text('Graf')),
       ],
-      rows: _chartData.keys.map((key) {
-        String value;
-        switch(key) {
-          case 'RPM': value = data.rpm.toStringAsFixed(0); break;
-          case 'Gas': value = '${data.throttle.toStringAsFixed(1)} %'; break;
-          case 'Brzina': value = '${data.speed.toStringAsFixed(1)} km/h'; break;
-          default: value = 'N/A';
-        }
-        return DataRow(
-          cells: [
-            DataCell(Text(key)),
-            DataCell(Text(value.contains("-1") ? "N/A" : value)),
-            DataCell(Checkbox(
-              value: _selectedParameters[key],
-              onChanged: (bool? selected) {
-                setState(() {
-                  _selectedParameters[key] = selected ?? false;
-                });
-              },
-            )),
-          ],
-        );
-      }).toList(),
+      rows: [
+        _buildDataRow('RPM', data.rpm.toStringAsFixed(0), ''),
+        _buildDataRow('TPS', data.throttle.toStringAsFixed(1), '%'),
+        _buildDataRow('Brzina', data.speed.toStringAsFixed(1), 'km/h'),
+        _buildDataRow('Gorivo', data.fuel.toStringAsFixed(1), '%', showCheckbox: false),
+        _buildDataRow('ECT', data.ect.toStringAsFixed(1), '°C'),
+        _buildDataRow('EOT', data.eot.toStringAsFixed(1), '°C'),
+        _buildDataRow('MAT', data.mat.toStringAsFixed(1), '°C', showCheckbox: false),
+        _buildDataRow('EGT', data.egt.toStringAsFixed(1), '°C', showCheckbox: false),
+        _buildDataRow('MAP', data.map.toStringAsFixed(1), 'hPa', showCheckbox: false),
+      ],
+    );
+  }
+
+  DataRow _buildDataRow(String key, String value, String unit, {bool showCheckbox = true}) {
+    final displayValue = value.contains("-1") ? "N/A" : '$value $unit';
+    return DataRow(
+      cells: [
+        DataCell(Text(key)),
+        DataCell(Text(displayValue)),
+        DataCell(showCheckbox && _selectedParameters.containsKey(key) ? Checkbox(
+          value: _selectedParameters[key],
+          onChanged: (bool? selected) {
+            setState(() { _selectedParameters[key] = selected ?? false; });
+          },
+        ) : Container()),
+      ],
     );
   }
 
   Widget _buildChart() {
     final List<LineChartBarData> lineBarsData = [];
-    final List<Color> colors = [Colors.cyan, Colors.lightGreenAccent, Colors.yellow];
+    final List<Color> colors = [Colors.cyan, Colors.lightGreenAccent, Colors.yellow, Colors.redAccent, Colors.orangeAccent];
     int colorIndex = 0;
 
     _selectedParameters.forEach((key, isSelected) {
       if (isSelected && _chartData[key]!.isNotEmpty) {
         lineBarsData.add(LineChartBarData(
-          spots: _chartData[key]!.toList(),
-          isCurved: true,
-          color: colors[colorIndex % colors.length],
-          barWidth: 3,
+          spots: _chartData[key]!.toList(), isCurved: true,
+          color: colors[colorIndex % colors.length], barWidth: 3,
           dotData: const FlDotData(show: false),
-          belowBarData: BarAreaData(show: false),
         ));
         colorIndex++;
       }
@@ -142,7 +142,6 @@ class _CanLiveScreenState extends State<CanLiveScreen> {
           ),
           gridData: FlGridData(
             show: true,
-            drawVerticalLine: true,
             getDrawingHorizontalLine: (value) => const FlLine(color: Colors.white12, strokeWidth: 1),
             getDrawingVerticalLine: (value) => const FlLine(color: Colors.white12, strokeWidth: 1),
           ),
