@@ -1,6 +1,5 @@
-import 'dart:convert';
-import 'package:flutter/material.dart'; // Ključni import koji nedostaje
-import 'package:sdmt_final/data/sensor_database.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sdmt_final/services/websocket_service.dart';
 
 class MainMenuScreen extends StatefulWidget {
@@ -11,95 +10,72 @@ class MainMenuScreen extends StatefulWidget {
 }
 
 class _MainMenuScreenState extends State<MainMenuScreen> {
-  String canStatus = "-";
-  String battVoltage = "-";
-
-  @override
-  void initState() {
-    super.initState();
-    SdmTService.instance.messages.listen((message) {
-      try {
-        final data = jsonDecode(message);
-        if (data['status'] != null && mounted) {
-          setState(() {
-            canStatus = data['status']['can']?.toString() ?? "-";
-            battVoltage = data['status']['batt']?.toString() ?? "-";
-          });
-        }
-      } catch (e) {
-        debugPrint("Poruka nije status: $message");
-      }
-    });
-  }
+  // Statusi ostaju isti, ali se više ne ažuriraju ovdje,
+  // već će to raditi LiveDataScreen.
+  // Ovdje ih ostavljamo ako ih statusna traka i dalje treba.
+  // Za sada, ova datoteka više ne treba 'initState' i 'jsonDecode'.
 
   @override
   Widget build(BuildContext context) {
-    final categories = groupedSensors.keys.toList();
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SDmT - Izbornik'),
+        title: const Text('SeaDoo miniTool PRO'),
+        centerTitle: true, // Centriraj naslov
       ),
-      drawer: _buildDrawer(context),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final category = categories[index];
-                return ListTile(
-                  title: Text(category.displayName, style: const TextStyle(fontSize: 20)),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () => Navigator.pushNamed(context, '/testList', arguments: category),
-                );
-              },
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // --- Veliki gumbi ---
+            _MainMenuButton(
+              icon: Icons.memory, // Ikona za senzore
+              label: 'Senzori i Komponente',
+              onPressed: () => Navigator.pushNamed(context, '/testList'),
             ),
-          ),
-          _buildStatusBar(),
-        ],
+            const SizedBox(height: 16),
+            _MainMenuButton(
+              icon: Icons.hub, // Ikona za CAN
+              label: 'CAN Dijagnostika',
+              onPressed: () => Navigator.pushNamed(context, '/liveData'),
+            ),
+            
+            const Spacer(), // Gura donje gumbe na dno
+
+            // --- Manji gumbi ---
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _SmallMenuButton(
+                  icon: Icons.settings,
+                  label: 'Postavke',
+                  onPressed: () => Navigator.pushNamed(context, '/settings'),
+                ),
+                _SmallMenuButton(
+                  icon: Icons.info_outline,
+                  label: 'O Aplikaciji',
+                  onPressed: () => Navigator.pushNamed(context, '/about'),
+                ),
+                _SmallMenuButton(
+                  icon: Icons.exit_to_app,
+                  label: 'Izlaz',
+                  onPressed: () {
+                    SdmTService.instance.disconnect();
+                    SystemNavigator.pop(); // Ispravan način za zatvaranje aplikacije
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
+      // Statusna traka ostaje ista, maknuta iz Columna i stavljena u Scaffold
+      bottomNavigationBar: _buildStatusBar(), 
     );
   }
 
-  Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Colors.teal),
-            child: Text('SDmT Meni', style: TextStyle(color: Colors.white, fontSize: 24)),
-          ),
-          ListTile(
-            leading: const Icon(Icons.speed),
-            title: const Text('Live Data'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/liveData');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Postavke'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/settings');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('O Aplikaciji'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/about');
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
+  // Widget za statusnu traku ostaje isti kao prije
   Widget _buildStatusBar() {
     return Container(
       color: const Color(0xFF333333),
@@ -118,14 +94,65 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               );
             },
           ),
-          _StatusItem(icon: Icons.hub, label: "CAN Bus", value: canStatus),
-          _StatusItem(icon: Icons.battery_charging_full, label: "Baterija", value: battVoltage),
+          // Ove iteme ćemo kasnije povezati na LiveData
+          _StatusItem(icon: Icons.hub, label: "CAN Bus", value: "-"),
+          _StatusItem(icon: Icons.battery_charging_full, label: "Baterija", value: "-"),
         ],
       ),
     );
   }
 }
 
+
+// --- Pomoćni widgeti za gumbe ---
+
+class _MainMenuButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  const _MainMenuButton({required this.icon, required this.label, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      icon: Icon(icon, size: 32),
+      label: Text(label, style: const TextStyle(fontSize: 20)),
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+}
+
+class _SmallMenuButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  const _SmallMenuButton({required this.icon, required this.label, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          icon: Icon(icon, size: 28),
+          onPressed: onPressed,
+          color: Colors.white70,
+        ),
+        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+      ],
+    );
+  }
+}
+
+// Widget za item u statusnoj traci (nepromijenjen)
 class _StatusItem extends StatelessWidget {
   final IconData icon;
   final String label;
