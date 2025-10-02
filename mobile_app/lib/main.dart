@@ -1,48 +1,78 @@
-// lib/main.dart
+// lib/models/models.dart
 import 'package:flutter/material.dart';
-import 'package:sdt_final/data/sensor_database.dart';
-import 'package:sdt_final/screens/can_live_screen.dart';
-import 'package:sdt_final/screens/sensor_testing/temperature_sensors_screen.dart';
-import 'package:sdt_final/widgets/main_scaffold.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+// --- MODEL ZA LIVE CAN PODATKE ---
+// Sadrži sva polja definirana u knowledge_base
+class LiveData {
+  final double rpm;
+  final double throttle;
+  final double coolantTemp;
+  final double oilTemp;
+  final double speed;
+  final double fuelLevel;
+  final double mapPressure;
+  final double intakeTemp;
+  final double exhaustTemp;
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  LiveData({
+    this.rpm = 0.0,
+    this.throttle = 0.0,
+    this.coolantTemp = 0.0,
+    this.oilTemp = 0.0,
+    this.speed = 0.0,
+    this.fuelLevel = 0.0,
+    this.mapPressure = 0.0,
+    this.intakeTemp = 0.0,
+    this.exhaustTemp = 0.0,
+  });
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SDTpro',
-      theme: ThemeData.dark().copyWith(
-        primaryColor: Colors.blueGrey[900],
-        scaffoldBackgroundColor: const Color(0xFF121212), // Tamnija pozadina
-        cardColor: Colors.blueGrey[900],
-        colorScheme: const ColorScheme.dark(
-          primary: Colors.tealAccent,
-          secondary: Colors.tealAccent,
-          surface: Color(0xFF1E1E1E),
-          onSurface: Colors.white,
-        ),
-        textTheme: Typography.material2021().white.copyWith(
-              titleLarge: const TextStyle(color: Colors.white),
-              titleMedium: TextStyle(color: Colors.white.withOpacity(0.87)),
-              bodyLarge: TextStyle(color: Colors.white.withOpacity(0.87)),
-              bodyMedium: TextStyle(color: Colors.white.withOpacity(0.60)),
-            ),
-      ),
-      // Početni ekran je MainScaffold, koji sadrži donju navigaciju
-      home: const MainScaffold(),
-      
-      // Definicija svih ruta u aplikaciji za direktnu navigaciju
-      routes: {
-        AppRoutes.canLiveData: (context) => const CanLiveScreen(),
-        AppRoutes.temperatureSensors: (context) => TemperatureSensorsScreen(
-              sensors: temperatureSensorItems, // Prosljeđujemo listu senzora
-            ),
-      },
+  factory LiveData.fromJson(Map<String, dynamic> json) {
+    // Ključevi (npr. 'Gas (Throttle)') moraju točno odgovarati
+    // onima koje firmware šalje u JSON-u
+    return LiveData(
+      rpm: (json['RPM'] ?? 0.0).toDouble(),
+      throttle: (json['Gas (Throttle)'] ?? 0.0).toDouble(),
+      coolantTemp: (json['Temp. rashl. tekućine (ECT)'] ?? 0.0).toDouble(),
+      oilTemp: (json['Temp. ulja (EOT)'] ?? 0.0).toDouble(),
+      speed: (json['Brzina vozila'] ?? 0.0).toDouble(),
+      fuelLevel: (json['Razina goriva'] ?? 0.0).toDouble(),
+      mapPressure: (json['Tlak (MAP)'] ?? 0.0).toDouble(),
+      intakeTemp: (json['Temp. usisnog zraka (MAT)'] ?? 0.0).toDouble(),
+      exhaustTemp: (json['Temp. ispuha (EGT)'] ?? 0.0).toDouble(),
     );
   }
+}
+
+// --- MODELI ZA STRUKTURU I NAVIGACIJU IZBORNIKA ---
+
+// Glavna kategorija na početnom ekranu (npr. "Dijagnostika", "Postavke")
+class MainMenuCategory {
+  final String name;
+  final IconData icon;
+  final List<SubCategoryItem> subCategories;
+
+  MainMenuCategory({
+    required this.name,
+    required this.icon,
+    required this.subCategories,
+  });
+}
+
+// Pod-kategorija ili test (npr. "Senzori Temperature", "Test Injektora")
+class SubCategoryItem {
+  final String name;
+  final String? description;
+  final String routeName; // Jedinstvena putanja za navigaciju
+
+  // Polja specifična za testove, mogu biti null
+  double? measuredValue;
+  String status;
+
+  SubCategoryItem({
+    required this.name,
+    required this.routeName,
+    this.description,
+    this.measuredValue,
+    this.status = 'pending',
+  });
 }
