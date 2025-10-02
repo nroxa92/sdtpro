@@ -102,6 +102,7 @@ class NtcSensor extends BaseSensorData {
     required this.alarms,
     super.resistanceTest,
     super.voltageTest,
+    super.currentTest,
   });
 }
 
