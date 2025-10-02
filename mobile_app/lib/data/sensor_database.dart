@@ -1,21 +1,24 @@
-// lib/sensor_database.dart
-
+// lib/data/sensor_database.dart
 import 'package:flutter/material.dart';
-import 'package:sdt_final/screens/sensor_testing/temperature_sensors_screen.dart';
-import 'models/models.dart'; // ISPRAVLJENA PUTANJA
+import '../models/models.dart'; // Ispravan import
 
-// Prvo definiramo listu senzora temperature kao zasebnu varijablu.
-// Ovi objekti će čuvati podatke o mjerenjima.
+// Definicija ruta kao konstanti radi izbjegavanja grešaka u pisanju
+class AppRoutes {
+  static const String temperatureSensors = '/test/temperature_sensors';
+  // Ovdje dodajte rute za buduće ekrane
+}
+
+// Lista senzora temperature
 final List<SensorSubCategory> temperatureSensorsList = [
-  SensorSubCategory(name: 'EGTS', targetScreen: Container(), expectedRange: 'temp-ovisno'),
-  SensorSubCategory(name: 'ECTS', targetScreen: Container(), expectedRange: 'temp-ovisno'),
-  SensorSubCategory(name: 'EOTS', targetScreen: Container(), expectedRange: 'temp-ovisno'),
-  SensorSubCategory(name: 'MATS', targetScreen: Container(), expectedRange: 'temp-ovisno'),
-  SensorSubCategory(name: 'LTS', targetScreen: Container(), expectedRange: 'temp-ovisno'),
+  SensorSubCategory(name: 'EGTS', routeName: '', expectedRange: 'temp-ovisno'),
+  SensorSubCategory(name: 'ECTS', routeName: '', expectedRange: 'temp-ovisno'),
+  SensorSubCategory(name: 'EOTS', routeName: '', expectedRange: 'temp-ovisno'),
+  SensorSubCategory(name: 'MATS', routeName: '', expectedRange: 'temp-ovisno'),
+  SensorSubCategory(name: 'LTS', routeName: '', expectedRange: 'temp-ovisno'),
 ];
 
-// Zatim, definiramo kategorije koje će se prikazivati na glavnom izborniku.
-final List<SensorCategory> sensorCategories = [
+// Glavna lista kategorija za dijagnostiku
+final List<SensorCategory> diagnosticCategories = [
   SensorCategory(
     name: 'Senzori',
     icon: Icons.sensors,
@@ -23,23 +26,10 @@ final List<SensorCategory> sensorCategories = [
       SensorSubCategory(
         name: 'Senzori Temperature',
         description: 'Testiranje otpora, napona i struje NTC senzora.',
-        // KLJUČNI DIO: Ovaj gumb vodi na naš novi ekran i prosljeđuje mu listu senzora
-        targetScreen: TemperatureSensorsScreen(sensors: temperatureSensorsList),
+        routeName: AppRoutes.temperatureSensors, // Koristimo definiranu rutu
       ),
-      // Ovdje kasnije možete dodati i druge testove, npr. za senzore tlaka
-      // SensorSubCategory(
-      //   name: 'Senzori Tlaka',
-      //   description: 'Testiranje MAP i ostalih senzora tlaka.',
-      //   targetScreen: Container(), // Placeholder za budući ekran
-      // ),
+      // Ovdje možete dodati i druge testove
     ],
   ),
-  SensorCategory(
-    name: 'Aktuatori',
-    icon: Icons.precision_manufacturing,
-    subCategories: [
-      // Budući testovi za aktuatore (injektori, bobine...)
-    ],
-  ),
-  // Dodajte ostale glavne kategorije po potrebi
+  // ... dodajte druge kategorije
 ];
