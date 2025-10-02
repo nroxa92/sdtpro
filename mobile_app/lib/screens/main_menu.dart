@@ -95,8 +95,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             },
           ),
           // Ove iteme ćemo kasnije povezati na LiveData
-          _StatusItem(icon: Icons.hub, label: "CAN Bus", value: "-"),
-          _StatusItem(icon: Icons.battery_charging_full, label: "Baterija", value: "-"),
+          const _StatusItem(icon: Icons.hub, label: "CAN Bus", value: "-"),
+          const _StatusItem(icon: Icons.battery_charging_full, label: "Baterija", value: "-"),
         ],
       ),
     );
