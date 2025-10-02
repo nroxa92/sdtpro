@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sdmt_final/models/live_data.dart'; // <-- OVA LINIJA JE DODANA
+import 'package:sdmt_final/models/live_data.dart'; // <-- KLJUČNA LINIJA KOJA JE NEDOSTAJALA
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class SdmTService {
   SdmTService._privateConstructor();
