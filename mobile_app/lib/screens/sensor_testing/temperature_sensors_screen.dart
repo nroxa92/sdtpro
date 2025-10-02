@@ -3,13 +3,8 @@ import 'package:flutter/material.dart';
 import '../../models/models.dart';
 
 class TemperatureSensorsScreen extends StatefulWidget {
-  // Ekran prima listu itema (senzora) koje treba testirati
   final List<SubCategoryItem> sensors;
-
-  const TemperatureSensorsScreen({
-    super.key,
-    required this.sensors,
-  });
+  const TemperatureSensorsScreen({super.key, required this.sensors});
 
   @override
   State<TemperatureSensorsScreen> createState() => _TemperatureSensorsScreenState();
@@ -21,14 +16,12 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchAllResistances(); // Pokrećemo simulaciju mjerenja
-    if (widget.sensors.isNotEmpty) {
-      _selectedSensor = widget.sensors.first;
-    }
+    _fetchAllResistances();
+    if (widget.sensors.isNotEmpty) _selectedSensor = widget.sensors.first;
   }
 
-  // Metoda koja simulira dohvaćanje podataka s firmvera
   void _fetchAllResistances() {
+    // Simulacija dohvaćanja podataka s firmvera
     Future.delayed(const Duration(seconds: 1), () {
       if (!mounted) return;
       setState(() {
@@ -49,9 +42,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('SENZORI TEMPERATURE'),
-      ),
+      appBar: AppBar(title: const Text('SENZORI TEMPERATURE')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -68,7 +59,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
 
   Widget _buildInfoPanel() {
     final titleStyle = Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold);
-    final subtitleStyle = Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.tealAccent.withOpacity(0.8));
+    final subtitleStyle = Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.primary.withOpacity(0.8));
     return Card(
       elevation: 4.0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
@@ -81,14 +72,14 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
             const SizedBox(height: 16),
             Text('Otpor (NTC Senzori)', style: subtitleStyle),
             const SizedBox(height: 8),
-            _buildInfoRow('20°C:', '~2500 Ω'), _buildInfoRow('25°C:', '~2100 Ω'),
-            _buildInfoRow('30°C:', '~1700 Ω'), _buildInfoRow('35°C:', '~1450 Ω'),
+            _buildInfoRow('20°C:', '~2500 Ω'),_buildInfoRow('25°C:', '~2100 Ω'),
+            _buildInfoRow('30°C:', '~1700 Ω'),_buildInfoRow('35°C:', '~1450 Ω'),
             _buildInfoRow('40°C:', '~1200 Ω'),
             const Divider(height: 32, thickness: 1),
             Text('ECU Pinout', style: subtitleStyle),
             const SizedBox(height: 8),
-            _buildInfoRow('EGTS:', 'B-G4 / F3'), _buildInfoRow('ECTS:', 'A-A1 / J2'),
-            _buildInfoRow('EOTS:', 'A-H4 / J4'), _buildInfoRow('MATS:', 'A-H2 / H3'),
+            _buildInfoRow('EGTS:', 'B-G4 / F3'),_buildInfoRow('ECTS:', 'A-A1 / J2'),
+            _buildInfoRow('EOTS:', 'A-H4 / J4'),_buildInfoRow('MATS:', 'A-H2 / H3'),
             _buildInfoRow('LTS:', 'B-E2 / G2'),
           ],
         ),
@@ -114,16 +105,18 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
               child: DataTable(
                 columnSpacing: 16.0,
                 columns: const [
-                  DataColumn(label: Text('Status')), DataColumn(label: Text('Senzor')),
-                  DataColumn(label: Text('Očekivano (Ω)')), DataColumn(label: Text('Izmjereno (Ω)'), numeric: true),
+                  DataColumn(label: Text('Status')),DataColumn(label: Text('Senzor')),
+                  DataColumn(label: Text('Očekivano (Ω)')),DataColumn(label: Text('Izmjereno (Ω)'), numeric: true),
                 ],
                 rows: widget.sensors.map((sensor) {
                   return DataRow(
                     selected: _selectedSensor == sensor,
-                    onSelectChanged: (isSelected) { if (isSelected ?? false) { setState(() { _selectedSensor = sensor; }); } },
+                    onSelectChanged: (isSelected) { if (isSelected ?? false) setState(() => _selectedSensor = sensor); },
                     cells: [
-                      DataCell(_buildStatusIcon(sensor.status)), DataCell(Text(sensor.name)),
-                      DataCell(Text(currentExpectedRange)), DataCell(Text(sensor.measuredValue?.toString() ?? '---')),
+                      DataCell(_buildStatusIcon(sensor.status)),
+                      DataCell(Text(sensor.name)),
+                      DataCell(Text(currentExpectedRange)),
+                      DataCell(Text(sensor.measuredValue?.toString() ?? '---')),
                     ],
                   );
                 }).toList(),
@@ -131,7 +124,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
             ),
             const Divider(height: 32),
             Center(child: Text('Graf za: ${_selectedSensor?.name ?? "Nije odabran"}', style: Theme.of(context).textTheme.titleMedium)),
-            const SizedBox(height: 100), // Placeholder for graph
+            const SizedBox(height: 100),
           ],
         ),
       ),
@@ -144,7 +137,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [ Text(label, style: Theme.of(context).textTheme.bodyLarge!), SelectableText(value, style: valueStyle) ],
+        children: [Text(label, style: Theme.of(context).textTheme.bodyLarge!), SelectableText(value, style: valueStyle)],
       ),
     );
   }

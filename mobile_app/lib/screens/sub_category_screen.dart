@@ -1,6 +1,6 @@
 // lib/screens/sub_category_screen.dart
 import 'package:flutter/material.dart';
-import 'package:sdt_final/models/models.dart';
+import '../models/models.dart';
 
 class SubCategoryScreen extends StatelessWidget {
   final MainMenuCategory category;
@@ -14,20 +14,23 @@ class SubCategoryScreen extends StatelessWidget {
         title: Text(category.name),
       ),
       body: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
         itemCount: category.subCategories.length,
         itemBuilder: (context, index) {
           final subCategory = category.subCategories[index];
           return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             child: ListTile(
               title: Text(subCategory.name),
               subtitle: subCategory.description != null
                   ? Text(subCategory.description!)
                   : null,
-              trailing: const Icon(Icons.arrow_forward_ios),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
-                // Ovdje se događa navigacija na temelju definirane rute
-                Navigator.pushNamed(context, subCategory.routeName);
+                // Navigacija na temelju rute definirane u `main.dart`
+                if (subCategory.routeName.isNotEmpty) {
+                  Navigator.pushNamed(context, subCategory.routeName);
+                }
               },
             ),
           );

@@ -1,5 +1,4 @@
 // lib/screens/can_live_screen.dart
-
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../services/websocket_service.dart';
@@ -12,7 +11,6 @@ class CanLiveScreen extends StatefulWidget {
 }
 
 class _CanLiveScreenState extends State<CanLiveScreen> {
-  // Dohvaćamo instancu servisa
   final SdmTService _sdmTService = SdmTService();
 
   @override
@@ -23,8 +21,6 @@ class _CanLiveScreenState extends State<CanLiveScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        // Slušamo promjene na liveDataNotifier-u i automatski
-        // ponovno iscrtavamo sučelje s novim podacima
         child: ValueListenableBuilder<LiveData>(
           valueListenable: _sdmTService.liveDataNotifier,
           builder: (context, liveData, child) {
@@ -35,12 +31,16 @@ class _CanLiveScreenState extends State<CanLiveScreen> {
                 crossAxisSpacing: 16,
                 childAspectRatio: 2.5,
               ),
-              // Prikazujemo samo podatke koji su definirani u našem novom LiveData modelu
               children: [
                 _buildDataCard('RPM', liveData.rpm.toStringAsFixed(0), 'rpm'),
                 _buildDataCard('Gas', liveData.throttle.toStringAsFixed(1), '%'),
+                _buildDataCard('Brzina', liveData.speed.toStringAsFixed(1), 'km/h'),
+                _buildDataCard('Gorivo', liveData.fuelLevel.toStringAsFixed(1), '%'),
                 _buildDataCard('Temp. Vode', liveData.coolantTemp.toStringAsFixed(1), '°C'),
-                // Ovdje se lako mogu dodati nove kartice kada proširite LiveData model
+                _buildDataCard('Temp. Ulja', liveData.oilTemp.toStringAsFixed(1), '°C'),
+                _buildDataCard('Temp. Usisa', liveData.intakeTemp.toStringAsFixed(1), '°C'),
+                _buildDataCard('MAP Tlak', liveData.mapPressure.toStringAsFixed(0), 'hPa'),
+                _buildDataCard('Temp. Ispuha', liveData.exhaustTemp.toStringAsFixed(1), '°C'),
               ],
             );
           },
@@ -52,6 +52,7 @@ class _CanLiveScreenState extends State<CanLiveScreen> {
   Widget _buildDataCard(String title, String value, String unit) {
     return Card(
       elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
