@@ -1,36 +1,44 @@
 // lib/screens/sensor_testing/temperature_sensors_screen.dart
-import 'package.flutter/material.dart';
-import '../../models/models.dart'; // Ispravan import
+import 'package:flutter/material.dart';
+import '../../models/models.dart';
 
 class TemperatureSensorsScreen extends StatefulWidget {
-  final List<SensorSubCategory> sensors;
-  const TemperatureSensorsScreen({super.key, required this.sensors});
+  // Ekran prima listu itema (senzora) koje treba testirati
+  final List<SubCategoryItem> sensors;
+
+  const TemperatureSensorsScreen({
+    super.key,
+    required this.sensors,
+  });
 
   @override
   State<TemperatureSensorsScreen> createState() => _TemperatureSensorsScreenState();
 }
 
 class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
-  SensorSubCategory? _selectedSensor;
+  SubCategoryItem? _selectedSensor;
 
   @override
   void initState() {
     super.initState();
-    _fetchAllResistances();
-    if (widget.sensors.isNotEmpty) _selectedSensor = widget.sensors.first;
+    _fetchAllResistances(); // Pokrećemo simulaciju mjerenja
+    if (widget.sensors.isNotEmpty) {
+      _selectedSensor = widget.sensors.first;
+    }
   }
 
+  // Metoda koja simulira dohvaćanje podataka s firmvera
   void _fetchAllResistances() {
     Future.delayed(const Duration(seconds: 1), () {
       if (!mounted) return;
       setState(() {
         for (var sensor in widget.sensors) {
           switch (sensor.name) {
-            case 'EGTS': sensor.measuredResistance = 150; sensor.status = 'error'; break;
-            case 'ECTS': sensor.measuredResistance = 2480; sensor.status = 'ok'; break;
-            case 'EOTS': sensor.measuredResistance = 2510; sensor.status = 'ok'; break;
-            case 'MATS': sensor.measuredResistance = 9999; sensor.status = 'error'; break;
-            case 'LTS': sensor.measuredResistance = null; sensor.status = 'pending'; break;
+            case 'EGTS': sensor.measuredValue = 150; sensor.status = 'error'; break;
+            case 'ECTS': sensor.measuredValue = 2480; sensor.status = 'ok'; break;
+            case 'EOTS': sensor.measuredValue = 2510; sensor.status = 'ok'; break;
+            case 'MATS': sensor.measuredValue = 9999; sensor.status = 'error'; break;
+            case 'LTS': sensor.measuredValue = null; sensor.status = 'pending'; break;
           }
         }
         _selectedSensor = widget.sensors.firstWhere((s) => s.status == 'ok', orElse: () => widget.sensors.first);
@@ -38,21 +46,29 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
     });
   }
   
-  // Ostatak koda ostaje isti, samo potvrđujemo da je sve na mjestu
-  Widget _buildInfoRow(String label, String value) {
-    final valueStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, fontFamily: 'monospace');
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [ Text(label, style: Theme.of(context).textTheme.bodyLarge), SelectableText(value, style: valueStyle) ],
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('SENZORI TEMPERATURE'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildInfoPanel(),
+            const SizedBox(height: 24),
+            _buildMeasurementPanel(),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildInfoPanel() {
     final titleStyle = Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold);
-    final subtitleStyle = Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.blueAccent);
+    final subtitleStyle = Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.tealAccent.withOpacity(0.8));
     return Card(
       elevation: 4.0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
@@ -107,7 +123,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                     onSelectChanged: (isSelected) { if (isSelected ?? false) { setState(() { _selectedSensor = sensor; }); } },
                     cells: [
                       DataCell(_buildStatusIcon(sensor.status)), DataCell(Text(sensor.name)),
-                      DataCell(Text(currentExpectedRange)), DataCell(Text(sensor.measuredResistance?.toString() ?? '---')),
+                      DataCell(Text(currentExpectedRange)), DataCell(Text(sensor.measuredValue?.toString() ?? '---')),
                     ],
                   );
                 }).toList(),
@@ -115,9 +131,20 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
             ),
             const Divider(height: 32),
             Center(child: Text('Graf za: ${_selectedSensor?.name ?? "Nije odabran"}', style: Theme.of(context).textTheme.titleMedium)),
-            const SizedBox(height: 100),
+            const SizedBox(height: 100), // Placeholder for graph
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    final valueStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, fontFamily: 'monospace');
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [ Text(label, style: Theme.of(context).textTheme.bodyLarge!), SelectableText(value, style: valueStyle) ],
       ),
     );
   }
@@ -126,16 +153,5 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
     Color color;
     switch (status) { case 'ok': color = Colors.green; break; case 'error': color = Colors.red; break; default: color = Colors.grey; }
     return Icon(Icons.circle, color: color, size: 18);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('SENZORI TEMPERATURE'), backgroundColor: Colors.blueGrey[900]),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [ _buildInfoPanel(), const SizedBox(height: 24), _buildMeasurementPanel() ]),
-      ),
-    );
   }
 }

@@ -2,9 +2,9 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package.flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import '../models/models.dart'; // ISPRAVAN IMPORT
+import '../models/models.dart'; // Ispravan import na novi model
 
 class SdmTService {
   // Singleton uzorak
@@ -44,8 +44,7 @@ class SdmTService {
   void _onData(dynamic data) {
     try {
       final jsonData = jsonDecode(data as String);
-      // KLJUČNA IZMJENA: Koristimo `LiveData.fromJson` tvorničku metodu
-      // za sigurno stvaranje LiveData objekta iz primljenog JSON-a.
+      // Koristimo ispravan fromJson konstruktor iz novog LiveData modela
       liveDataNotifier.value = LiveData.fromJson(jsonData);
     } catch (e) {
       debugPrint('Error parsing JSON data: $e');
@@ -62,7 +61,7 @@ class SdmTService {
     _subscription?.cancel();
     _channel?.sink.close();
     isConnectedNotifier.value = false;
-    // Resetiraj na prazne podatke
-    liveDataNotifier.value = LiveData();
+    // Resetira podatke na početne vrijednosti
+    liveDataNotifier.value = LiveData(); 
   }
 }

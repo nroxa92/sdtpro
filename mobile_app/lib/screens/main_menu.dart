@@ -1,86 +1,59 @@
+// lib/screens/main_menu.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:sdmt_final/data/models.dart';
-import 'package:sdmt_final/data/sensor_database.dart';
-import 'package:sdmt_final/services/websocket_service.dart';
-import 'package:sdmt_final/widgets/main_scaffold.dart';
+import 'package:sdt_final/data/sensor_database.dart';
+import 'package:sdt_final/models/models.dart';
+import 'package:sdt_final/screens/sub_category_screen.dart'; // NOVI EKRAN
 
-class MainMenuScreen extends StatefulWidget {
+class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});
-  @override
-  State<MainMenuScreen> createState() => _MainMenuScreenState();
-}
-
-class _MainMenuScreenState extends State<MainMenuScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SdmTService>().connect();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    final categories = groupedSensors.keys.toList();
-    
-    return MainScaffold(
+    return Scaffold(
       appBar: AppBar(
-        title: const Text('SeaDoo miniTool PRO'),
-        centerTitle: true,
+        title: const Text('SDTpro Glavni Izbornik'),
       ),
-      // PROMJENA: Umjesto Column widgeta, koristimo GridView direktno u body-u
-      body: GridView.count(
-        crossAxisCount: 2, // Dva gumba u jednom redu
-        padding: const EdgeInsets.all(16),
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        children: categories.map((category) {
-          IconData icon;
-          String route;
-          switch (category) {
-            case TestCategory.senzori: icon = Icons.sensors; route = '/testList'; break;
-            case TestCategory.inKomponente: icon = Icons.input; route = '/testList'; break;
-            case TestCategory.outKomponente: icon = Icons.output; route = '/testList'; break;
-            case TestCategory.canLive: icon = Icons.show_chart; route = '/liveData'; break;
-            case TestCategory.canErrors: icon = Icons.error_outline; route = '/canErrors'; break;
-            case TestCategory.canTestovi: icon = Icons.biotech; route = '/canTests'; break;
-          }
-          return _MainMenuButton(
-            icon: icon,
-            label: category.displayName,
-            onPressed: () => Navigator.pushNamed(context, route, arguments: category),
-          );
-        }).toList(),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(16.0),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+        ),
+        itemCount: mainMenuCategories.length,
+        itemBuilder: (context, index) {
+          final category = mainMenuCategories[index];
+          return _buildCategoryCard(context, category);
+        },
       ),
     );
   }
-}
 
-// Pomoćni widget za gumbe ostaje isti
-class _MainMenuButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onPressed;
-
-  const _MainMenuButton({required this.icon, required this.label, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).cardColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 4,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 48),
-          const SizedBox(height: 8),
-          Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
-        ],
+  Widget _buildCategoryCard(BuildContext context, MainMenuCategory category) {
+    return Card(
+      elevation: 4,
+      child: InkWell(
+        onTap: () {
+          // Navigacija na novi ekran koji prikazuje pod-kategorije
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SubCategoryScreen(category: category),
+            ),
+          );
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(category.icon, size: 50, color: Colors.tealAccent),
+            const SizedBox(height: 16),
+            Text(
+              category.name,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ],
+        ),
       ),
     );
   }

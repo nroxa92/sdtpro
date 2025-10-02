@@ -1,35 +1,45 @@
 // lib/data/sensor_database.dart
-import 'package:flutter/material.dart';
-import '../models/models.dart'; // Ispravan import
+import 'package.flutter/material.dart';
+import '../models/models.dart';
 
-// Definicija ruta kao konstanti radi izbjegavanja grešaka u pisanju
+// Definicija ruta kao konstanti
 class AppRoutes {
   static const String temperatureSensors = '/test/temperature_sensors';
-  // Ovdje dodajte rute za buduće ekrane
+  static const String canLiveData = '/live/can_data';
 }
 
-// Lista senzora temperature
-final List<SensorSubCategory> temperatureSensorsList = [
-  SensorSubCategory(name: 'EGTS', routeName: '', expectedRange: 'temp-ovisno'),
-  SensorSubCategory(name: 'ECTS', routeName: '', expectedRange: 'temp-ovisno'),
-  SensorSubCategory(name: 'EOTS', routeName: '', expectedRange: 'temp-ovisno'),
-  SensorSubCategory(name: 'MATS', routeName: '', expectedRange: 'temp-ovisno'),
-  SensorSubCategory(name: 'LTS', routeName: '', expectedRange: 'temp-ovisno'),
+// Lista itema za testiranje senzora temperature
+final List<SubCategoryItem> temperatureSensorItems = [
+  SubCategoryItem(name: 'EGTS', routeName: ''), // Nema rutu jer je samo item u listi
+  SubCategoryItem(name: 'ECTS', routeName: ''),
+  SubCategoryItem(name: 'EOTS', routeName: ''),
+  SubCategoryItem(name: 'MATS', routeName: ''),
+  SubCategoryItem(name: 'LTS', routeName: ''),
 ];
 
-// Glavna lista kategorija za dijagnostiku
-final List<SensorCategory> diagnosticCategories = [
-  SensorCategory(
-    name: 'Senzori',
-    icon: Icons.sensors,
+// Glavna struktura izbornika
+final List<MainMenuCategory> mainMenuCategories = [
+  MainMenuCategory(
+    name: "Live Podaci",
+    icon: Icons.speed,
     subCategories: [
-      SensorSubCategory(
-        name: 'Senzori Temperature',
-        description: 'Testiranje otpora, napona i struje NTC senzora.',
-        routeName: AppRoutes.temperatureSensors, // Koristimo definiranu rutu
+      SubCategoryItem(
+        name: 'CAN Bus Live',
+        description: 'Prikaz podataka s CAN sabirnice u stvarnom vremenu.',
+        routeName: AppRoutes.canLiveData,
       ),
-      // Ovdje možete dodati i druge testove
     ],
   ),
-  // ... dodajte druge kategorije
+  MainMenuCategory(
+    name: "Dijagnostika",
+    icon: Icons.build,
+    subCategories: [
+      SubCategoryItem(
+        name: 'Senzori Temperature',
+        description: 'Testiranje otpora NTC senzora.',
+        routeName: AppRoutes.temperatureSensors,
+      ),
+      // Ovdje dodajte buduće testove...
+    ],
+  ),
 ];
