@@ -1,4 +1,5 @@
-// Potpuno zamijenite staru _buildInfoPanel metodu s ovom
+import 'package:flutter/material.dart';
+
   Widget _buildInfoPanel() {
     final titleStyle = Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold);
     final subtitleStyle = Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.blueAccent);
