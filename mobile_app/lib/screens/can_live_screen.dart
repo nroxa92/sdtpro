@@ -1,7 +1,8 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:sdmt_final/data/models.dart'; // <-- DODANA LINIJA
+// ISPRAVAK: Import mora biti 'live_data.dart', a ne 'models.dart' za ovu klasu
+import 'package:sdmt_final/models/live_data.dart';
 import 'package:sdmt_final/services/websocket_service.dart';
 
 class CanLiveScreen extends StatefulWidget {
