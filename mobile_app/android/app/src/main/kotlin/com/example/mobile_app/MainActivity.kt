@@ -1,3 +1,4 @@
+// ISPRAVAK: Naziv paketa je sada ispravan i odgovara vašem projektu
 package com.example.sdmt_final
 
 import android.content.Context
@@ -39,6 +40,7 @@ class MainActivity: FlutterActivity() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     connectivityManager.bindProcessToNetwork(network)
                 } else {
+                    @Suppress("DEPRECATION")
                     ConnectivityManager.setProcessDefaultNetwork(network)
                 }
                 connectivityManager.unregisterNetworkCallback(this)
@@ -46,6 +48,6 @@ class MainActivity: FlutterActivity() {
         }
         
         connectivityManager.requestNetwork(request, networkCallback)
-        return true // Vraćamo true jer je zahtjev poslan asinkrono
+        return true
     }
 }
