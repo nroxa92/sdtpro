@@ -1,5 +1,5 @@
 // lib/data/sensor_database.dart
-import 'package:flutter/material.dart';
+import 'package.flutter/material.dart';
 import '../models/models.dart';
 
 // Definicija ruta kao konstanti radi izbjegavanja grešaka u pisanju
