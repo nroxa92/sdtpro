@@ -1,58 +1,65 @@
+// lib/widgets/main_scaffold.dart
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:sdmt_final/services/websocket_service.dart';
+import '../screens/main_menu.dart';
+import '../services/websocket_service.dart';
 
-class MainScaffold extends StatelessWidget {
-  final Widget body;
-  final AppBar? appBar;
+// Pretpostavka je da imate i druge ekrane definirane negdje
+// npr. placeholderi za 'live' i 'postavke'
+const Widget placeholderScreen1 = Center(child: Text('Live Screen Placeholder'));
+const Widget placeholderScreen2 = Center(child: Text('Settings Screen Placeholder'));
 
-  const MainScaffold({
-    super.key,
-    required this.body,
-    this.appBar,
-  });
+
+class MainScaffold extends StatefulWidget {
+  const MainScaffold({super.key});
+
+  @override
+  State<MainScaffold> createState() => _MainScaffoldState();
+}
+
+class _MainScaffoldState extends State<MainScaffold> {
+  final SdmTService _sdmTService = SdmTService();
+  int _currentIndex = 0;
+
+  final List<Widget> _screens = [
+    const MainMenuScreen(),
+    placeholderScreen1,
+    placeholderScreen2,
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Pozivamo connect bez argumenta, koristit će defaultnu IP adresu
+    _sdmTService.connect(); 
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar,
-      body: body,
-      bottomNavigationBar: _buildBottomControls(context),
-    );
-  }
-
-  Widget _buildBottomControls(BuildContext context) {
-    final sdmTService = context.watch<SdmTService>();
-    return Container(
-      color: Theme.of(context).appBarTheme.backgroundColor,
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0)
-          .copyWith(bottom: MediaQuery.of(context).padding.bottom + 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ValueListenableBuilder<bool>(
-            valueListenable: sdmTService.isConnectedNotifier,
-            builder: (context, isConnected, _) => IconButton(
-              icon: Icon(Icons.wifi, color: isConnected ? Colors.blue : Colors.red),
-              tooltip: isConnected ? 'Spojen' : 'Pokušaj ponovno spajanje',
-              onPressed: () { if (!isConnected) sdmTService.connect(); },
-            ),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: [
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Izbornik',
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(icon: const Icon(Icons.settings), tooltip: 'Postavke', onPressed: () => Navigator.pushNamed(context, '/settings')),
-              IconButton(icon: const Icon(Icons.info_outline), tooltip: 'O Aplikaciji', onPressed: () => Navigator.pushNamed(context, '/about')),
-              IconButton(icon: const Icon(Icons.exit_to_app), tooltip: 'Izlaz', onPressed: () {
-                sdmTService.disconnect();
-                SystemNavigator.pop();
-              }),
-            ],
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.speed),
+            label: 'Live',
           ),
-          ValueListenableBuilder<bool>(
-            valueListenable: sdmTService.canActivityNotifier,
-            builder: (context, hasActivity, _) => Icon(Icons.hub, color: hasActivity ? Colors.green : Colors.red),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Postavke',
           ),
         ],
       ),

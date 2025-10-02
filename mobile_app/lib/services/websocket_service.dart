@@ -1,13 +1,12 @@
 // lib/services/websocket_service.dart
 
-import 'dart:async';
-import 'dart:convert';
+import 'dart.async';
+import 'dart.convert';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import '../models/models.dart'; // Ispravan import na novi model
+import '../models/models.dart';
 
 class SdmTService {
-  // Singleton uzorak
   static final SdmTService _instance = SdmTService._internal();
   factory SdmTService() => _instance;
   SdmTService._internal();
@@ -17,8 +16,12 @@ class SdmTService {
 
   final ValueNotifier<bool> isConnectedNotifier = ValueNotifier(false);
   final ValueNotifier<LiveData> liveDataNotifier = ValueNotifier(LiveData());
+  // VRAĆAMO NOTIFIER ZA CAN AKTIVNOST KOJI JE NEDOSTAJAO
+  final ValueNotifier<bool> canActivityNotifier = ValueNotifier(false); 
+  Timer? _canActivityTimer;
 
-  Future<void> connect(String ipAddress) async {
+  // ISPRAVAK: Metoda connect sada ima opcionalni argument s defaultnom IP adresom
+  Future<void> connect([String ipAddress = '192.168.4.1']) async {
     if (isConnectedNotifier.value) {
       disconnect();
     }
@@ -42,9 +45,15 @@ class SdmTService {
   }
 
   void _onData(dynamic data) {
+    // Svaki put kad stignu podaci, znamo da je CAN aktivan
+    canActivityNotifier.value = true;
+    _canActivityTimer?.cancel();
+    _canActivityTimer = Timer(const Duration(milliseconds: 500), () {
+      canActivityNotifier.value = false; // Ugasimo status ako nema podataka pola sekunde
+    });
+
     try {
       final jsonData = jsonDecode(data as String);
-      // Koristimo ispravan fromJson konstruktor iz novog LiveData modela
       liveDataNotifier.value = LiveData.fromJson(jsonData);
     } catch (e) {
       debugPrint('Error parsing JSON data: $e');
@@ -61,7 +70,7 @@ class SdmTService {
     _subscription?.cancel();
     _channel?.sink.close();
     isConnectedNotifier.value = false;
-    // Resetira podatke na početne vrijednosti
-    liveDataNotifier.value = LiveData(); 
+    canActivityNotifier.value = false;
+    liveDataNotifier.value = LiveData();
   }
 }
