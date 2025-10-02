@@ -7,6 +7,9 @@ import 'package:sdmt_final/screens/settings.dart';
 import 'package:sdmt_final/screens/test.dart';
 import 'package:sdmt_final/screens/test_list.dart';
 import 'package:sdmt_final/services/websocket_service.dart';
+import 'package:sdmt_final/screens/can_errors_screen.dart';
+import 'package:sdmt_final/screens/can_live_screen.dart';
+import 'package:sdmt_final/screens/can_tests_screen.dart';
 
 void main() {
   runApp(
@@ -41,7 +44,10 @@ class MiniToolApp extends StatelessWidget {
         '/testScreen': (context) => const TestScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/about': (context) => const AboutScreen(),
-        '/liveData': (context) => const LiveDataScreen(),
+        '/liveData': (context) => const CanLiveScreen(), 
+        '/canErrors': (context) => const CanErrorsScreen(),
+        '/canTests': (context) => const CanTestsScreen(),
+      
       },
     );
   }

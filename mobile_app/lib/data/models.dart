@@ -4,9 +4,13 @@
 // Ovo rješava "ambiguous import" grešku.
 
 enum TestCategory {
-  sensors("Senzori i Komponente"),
-  can("CAN Dijagnostika");
-  
+  senzori("Senzori"),
+  in_komponente("IN Komponente"),
+  out_komponente("OUT Komponente"),
+  can_live("CAN Live Data"),
+  can_errors("CAN Greške"),
+  can_testovi("CAN Testovi");
+
   const TestCategory(this.displayName);
   final String displayName;
 }
