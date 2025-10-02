@@ -1,223 +1,42 @@
-enum TestCategory {
-  senzori("Senzori"),
-  inKomponente("IN Komponente"),
-  outKomponente("OUT Komponente"),
-  canLive("CAN Live Data"),
-  canErrors("CAN Greške"),
-  canTestovi("CAN Testovi");
+// lib/models/models.dart
 
-  const TestCategory(this.displayName);
-  final String displayName;
-}
+import 'package:flutter/material.dart';
 
-class ResistanceTest {
-  final double refMin;
-  final double refMax;
-  final String unit;
-  ResistanceTest({required this.refMin, required this.refMax, this.unit = "Ω"});
-}
-
-class VoltageTest {
-  final String description;
-  final String type;
-  VoltageTest({required this.description, this.type = "DC"});
-}
-
-class CurrentTest {
-  final double refMin;
-  final double refMax;
-  CurrentTest({required this.refMin, required this.refMax});
-}
-
-class PinoutDetail {
-  final int pin;
-  final String description;
-  PinoutDetail({required this.pin, required this.description});
-}
-
-class NtcDataPoint {
-  final int temp;
-  final int resistance;
-  NtcDataPoint({required this.temp, required this.resistance});
-}
-
-class AlarmTemp {
-  final String model;
-  final double temp;
-  AlarmTemp({required this.model, required this.temp});
-}
-
-abstract class BaseSensorData {
-  final String id;
+// Glavna kategorija na početnom ekranu
+class SensorCategory {
   final String name;
-  final TestCategory category;
-  final String typeDescription;
-  final String principleOfOperation;
-  final List<String> notes;
-  final ResistanceTest? resistanceTest;
-  final VoltageTest? voltageTest;
-  final CurrentTest? currentTest;
-  final List<PinoutDetail>? pinout;
+  final IconData icon;
+  // Svaka kategorija sada može imati listu pod-kategorija
+  final List<SensorSubCategory> subCategories;
 
-  BaseSensorData({
-    required this.id,
+  SensorCategory({
     required this.name,
-    required this.category,
-    required this.typeDescription,
-    this.principleOfOperation = "",
-    this.notes = const [],
-    this.resistanceTest,
-    this.voltageTest,
-    this.currentTest,
-    this.pinout,
+    required this.icon,
+    required this.subCategories,
   });
 }
 
-class GenericSensor extends BaseSensorData {
-  GenericSensor({
-    required super.id,
-    required super.name,
-    required super.category,
-    required super.typeDescription,
-    super.principleOfOperation,
-    super.notes,
-    super.resistanceTest,
-    super.voltageTest,
-    super.currentTest,
-    super.pinout,
+// Pod-kategorija ili individualni test koji se prikazuje nakon odabira glavne kategorije
+class SensorSubCategory {
+  final String name;
+  final String? description;
+  // Svaka pod-kategorija vodi na specifičan ekran za testiranje
+  final Widget targetScreen;
+
+  // --- POLJA ZA PRAĆENJE STANJA MJERENJA ---
+  // Ova polja će se koristiti unutar `TemperatureSensorsScreen`-a
+  double? measuredResistance;
+  String status;
+  final String? expectedRange;
+
+  SensorSubCategory({
+    required this.name,
+    this.description,
+    required this.targetScreen,
+    
+    // Inicijalne vrijednosti za polja stanja
+    this.measuredResistance,
+    this.status = 'pending',
+    this.expectedRange,
   });
-}
-
-class NtcSensor extends BaseSensorData {
-  final List<NtcDataPoint> ntcTable;
-  final List<AlarmTemp> alarms;
-
-  NtcSensor({
-    required super.id,
-    required super.name,
-    required super.category,
-    super.typeDescription = "NTC Otpornik",
-    required this.ntcTable,
-    required this.alarms,
-    super.resistanceTest,
-    super.voltageTest,
-    super.currentTest,
-  });
-}
-
-class SwitchSensor extends BaseSensorData {
-  final String activationRange;
-  SwitchSensor({
-    required super.id,
-    required super.name,
-    required super.category,
-    required super.typeDescription,
-    required super.principleOfOperation,
-    required this.activationRange,
-    super.notes,
-    super.resistanceTest,
-  });
-}
-
-class InductiveSensor extends BaseSensorData {
-  final String staticVoltage;
-  final String liveSignal;
-  InductiveSensor({
-    required super.id,
-    required super.name,
-    required super.category,
-    required super.typeDescription,
-    required this.staticVoltage,
-    required this.liveSignal,
-    super.resistanceTest,
-  });
-}
-
-class PiezoSensor extends BaseSensorData {
-  final String liveSignal;
-  PiezoSensor({
-    required super.id,
-    required super.name,
-    required super.category,
-    required super.typeDescription,
-    required this.liveSignal,
-    super.resistanceTest,
-    super.notes,
-  });
-}
-
-class HallSensor extends BaseSensorData {
-  final String liveSignal;
-  HallSensor({
-    required super.id,
-    required super.name,
-    required super.category,
-    required super.typeDescription,
-    required this.liveSignal,
-    super.pinout,
-  });
-}
-
-class ComboSensor extends BaseSensorData {
-  final String tempSignalInfo;
-  final String pressureSignalInfo;
-  ComboSensor({
-    required super.id,
-    required super.name,
-    required super.category,
-    required super.typeDescription,
-    required this.tempSignalInfo,
-    required this.pressureSignalInfo,
-    super.pinout,
-  });
-}
-
-class LiveData {
-  final double rpm;
-  final double throttle;
-  final double ect;
-  final double eot;
-  final double speed;
-  final double fuel;
-  final double map;
-  final double mat;
-  final double egt;
-
-  LiveData({
-    required this.rpm,
-    required this.throttle,
-    required this.ect,
-    required this.eot,
-    required this.speed,
-    required this.fuel,
-    required this.map,
-    required this.mat,
-    required this.egt,
-  });
-
-  factory LiveData.fromJson(Map<String, dynamic> json) {
-    double parseDouble(dynamic value) {
-      if (value is num) return value.toDouble();
-      return -1.0;
-    }
-
-    return LiveData(
-      rpm: parseDouble(json['rpm']),
-      throttle: parseDouble(json['throttle']),
-      ect: parseDouble(json['ect']),
-      eot: parseDouble(json['eot']),
-      speed: parseDouble(json['speed']),
-      fuel: parseDouble(json['fuel']),
-      map: parseDouble(json['map']),
-      mat: parseDouble(json['mat']),
-      egt: parseDouble(json['egt']),
-    );
-  }
-
-  factory LiveData.initial() {
-    return LiveData(
-      rpm: -1, throttle: -1, ect: -1, eot: -1, speed: -1,
-      fuel: -1, map: -1, mat: -1, egt: -1,
-    );
-  }
 }
