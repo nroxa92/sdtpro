@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sdmt_final/screens/about.dart';
-import 'package:sdmt_final/screens/live_data_screen.dart';
+import 'package:sdmt_final/screens/can_errors_screen.dart';
+import 'package:sdmt_final/screens/can_live_screen.dart';
+import 'package:sdmt_final/screens/can_tests_screen.dart';
 import 'package:sdmt_final/screens/main_menu.dart';
 import 'package:sdmt_final/screens/settings.dart';
 import 'package:sdmt_final/screens/test.dart';
 import 'package:sdmt_final/screens/test_list.dart';
 import 'package:sdmt_final/services/websocket_service.dart';
-import 'package:sdmt_final/screens/can_errors_screen.dart';
-import 'package:sdmt_final/screens/can_live_screen.dart';
-import 'package:sdmt_final/screens/can_tests_screen.dart';
 
+void main() {
+  runApp(
+    Provider(
+      create: (_) => SdmTService.instance,
+      child: const MiniToolApp(),
+    ),
+  );
+}
 void main() {
   runApp(
     Provider(

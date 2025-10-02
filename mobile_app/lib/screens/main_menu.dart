@@ -35,17 +35,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const Spacer(),
-            // Glavni gumbi
             ...categories.map((category) {
               IconData icon;
               String route;
               switch (category) {
                 case TestCategory.senzori: icon = Icons.sensors; route = '/testList'; break;
-                case TestCategory.in_komponente: icon = Icons.input; route = '/testList'; break;
-                case TestCategory.out_komponente: icon = Icons.output; route = '/testList'; break;
-                case TestCategory.can_live: icon = Icons.show_chart; route = '/liveData'; break;
-                case TestCategory.can_errors: icon = Icons.error_outline; route = '/canErrors'; break;
-                case TestCategory.can_testovi: icon = Icons.biotech; route = '/canTests'; break;
+                case TestCategory.inKomponente: icon = Icons.input; route = '/testList'; break;
+                case TestCategory.outKomponente: icon = Icons.output; route = '/testList'; break;
+                case TestCategory.canLive: icon = Icons.show_chart; route = '/liveData'; break;
+                case TestCategory.canErrors: icon = Icons.error_outline; route = '/canErrors'; break;
+                case TestCategory.canTestovi: icon = Icons.biotech; route = '/canTests'; break;
               }
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -57,7 +56,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               );
             }).toList(),
             const Spacer(),
-            // Donja traka s ikonama
             _buildBottomControls(),
           ],
         ),
@@ -70,16 +68,15 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           ValueListenableBuilder<bool>(
             valueListenable: sdmTService.isConnectedNotifier,
             builder: (context, isConnected, _) => Icon(Icons.wifi, color: isConnected ? Colors.blueAccent : Colors.redAccent, size: 28),
           ),
           const Spacer(),
-          IconButton(icon: const Icon(Icons.settings), onPressed: () => Navigator.pushNamed(context, '/settings')),
-          IconButton(icon: const Icon(Icons.info_outline), onPressed: () => Navigator.pushNamed(context, '/about')),
-          IconButton(icon: const Icon(Icons.exit_to_app), onPressed: () {
+          IconButton(icon: const Icon(Icons.settings), tooltip: 'Postavke', onPressed: () => Navigator.pushNamed(context, '/settings')),
+          IconButton(icon: const Icon(Icons.info_outline), tooltip: 'O Aplikaciji', onPressed: () => Navigator.pushNamed(context, '/about')),
+          IconButton(icon: const Icon(Icons.exit_to_app), tooltip: 'Izlaz', onPressed: () {
             sdmTService.disconnect();
             SystemNavigator.pop();
           }),
@@ -93,4 +90,28 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     );
   }
 }
-// Ostatak koda za _MainMenuButton ostaje isti
+
+class _MainMenuButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  const _MainMenuButton({required this.icon, required this.label, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      icon: Icon(icon, size: 28),
+      label: Text(label, style: const TextStyle(fontSize: 18)),
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).cardColor,
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 4,
+      ),
+    );
+  }
+}

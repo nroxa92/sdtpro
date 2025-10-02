@@ -1,15 +1,10 @@
-// lib/data/models.dart
-
-// Sve klase i enumeracije idu u ovu jednu datoteku.
-// Ovo rješava "ambiguous import" grešku.
-
 enum TestCategory {
   senzori("Senzori"),
-  in_komponente("IN Komponente"),
-  out_komponente("OUT Komponente"),
-  can_live("CAN Live Data"),
-  can_errors("CAN Greške"),
-  can_testovi("CAN Testovi");
+  inKomponente("IN Komponente"),
+  outKomponente("OUT Komponente"),
+  canLive("CAN Live Data"),
+  canErrors("CAN Greške"),
+  canTestovi("CAN Testovi");
 
   const TestCategory(this.displayName);
   final String displayName;
@@ -132,9 +127,9 @@ class InductiveSensor extends BaseSensorData {
     required super.name,
     required super.category,
     required super.typeDescription,
-    required super.resistanceTest,
     required this.staticVoltage,
     required this.liveSignal,
+    super.resistanceTest,
   });
 }
 
@@ -145,8 +140,8 @@ class PiezoSensor extends BaseSensorData {
     required super.name,
     required super.category,
     required super.typeDescription,
-    required super.resistanceTest,
     required this.liveSignal,
+    super.resistanceTest,
     super.notes,
   });
 }
@@ -158,8 +153,8 @@ class HallSensor extends BaseSensorData {
     required super.name,
     required super.category,
     required super.typeDescription,
-    required super.pinout,
     required this.liveSignal,
+    super.pinout,
   });
 }
 
@@ -171,8 +166,8 @@ class ComboSensor extends BaseSensorData {
     required super.name,
     required super.category,
     required super.typeDescription,
-    required super.pinout,
     required this.tempSignalInfo,
     required this.pressureSignalInfo,
+    super.pinout,
   });
 }

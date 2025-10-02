@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-
-class CanLiveScreen extends StatelessWidget {
-  const CanLiveScreen({super.key});
-
+class CanErrorsScreen extends StatelessWidget { // IME KLASE JE CanErrorsScreen
+  const CanErrorsScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('CAN Live Data')),
-      body: const Center(child: Text('Ekran za greške - Uskoro!')),
-    );
+    return Scaffold(appBar: AppBar(title: const Text('CAN Greške')));
   }
 }
