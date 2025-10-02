@@ -1,14 +1,15 @@
 // lib/data/sensor_database.dart
-import 'package.flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../models/models.dart';
 
-// Definicija ruta kao konstanti
+// Definicija ruta kao konstanti radi izbjegavanja grešaka u pisanju
 class AppRoutes {
   static const String temperatureSensors = '/test/temperature_sensors';
   static const String canLiveData = '/live/can_data';
+  // Ovdje dodajte rute za buduće ekrane
 }
 
-// Lista itema za testiranje senzora temperature
+// Lista itema (senzora) koji će biti prikazani na ekranu za testiranje temperature
 final List<SubCategoryItem> temperatureSensorItems = [
   SubCategoryItem(name: 'EGTS', routeName: ''), // Nema rutu jer je samo item u listi
   SubCategoryItem(name: 'ECTS', routeName: ''),
@@ -17,7 +18,7 @@ final List<SubCategoryItem> temperatureSensorItems = [
   SubCategoryItem(name: 'LTS', routeName: ''),
 ];
 
-// Glavna struktura izbornika
+// Glavna struktura izbornika koja se prikazuje na početnom ekranu
 final List<MainMenuCategory> mainMenuCategories = [
   MainMenuCategory(
     name: "Live Podaci",
@@ -39,7 +40,8 @@ final List<MainMenuCategory> mainMenuCategories = [
         description: 'Testiranje otpora NTC senzora.',
         routeName: AppRoutes.temperatureSensors,
       ),
-      // Ovdje dodajte buduće testove...
+      // Ovdje možete jednostavno dodati buduće testove
+      // npr. SubCategoryItem(name: 'Test Injektora', routeName: '/test/injectors'),
     ],
   ),
 ];
