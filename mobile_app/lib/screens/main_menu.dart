@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:sdmt_final/data/models.dart';
 import 'package:sdmt_final/data/sensor_database.dart';
 import 'package:sdmt_final/services/websocket_service.dart';
-import 'package:sdmt_final/widgets/main_scaffold.dart'; // <-- NOVI IMPORT
+import 'package:sdmt_final/widgets/main_scaffold.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -24,7 +24,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   Widget build(BuildContext context) {
     final categories = groupedSensors.keys.toList();
     
-    // Sada vraćamo MainScaffold umjesto običnog Scaffold-a
     return MainScaffold(
       appBar: AppBar(
         title: const Text('SeaDoo miniTool PRO'),
@@ -55,7 +54,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   onPressed: () => Navigator.pushNamed(context, route, arguments: category),
                 ),
               );
-            }).toList(),
+            }),
             const Spacer(),
           ],
         ),
@@ -64,7 +63,27 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   }
 }
 
-// Ostatak koda za _MainMenuButton ostaje isti
 class _MainMenuButton extends StatelessWidget {
-  // ...
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  const _MainMenuButton({required this.icon, required this.label, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      icon: Icon(icon, size: 28),
+      label: Text(label, style: const TextStyle(fontSize: 18)),
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).cardColor,
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 4,
+      ),
+    );
+  }
 }
