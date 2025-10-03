@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../data/hive_database.dart'; // <-- ISPRAVLJENO
+import '../../models/sensor_data.dart'; // <-- ISPRAVLJENO
+import '../../services/websocket_service.dart'; // <-- ISPRAVLJENO
 
-// ISPRAVLJEN import
-import 'package:sdtapp/data/hive_database.dart';
-
-import 'package:sdtapp/models/sensor_data.dart';
-import 'package:sdtapp/services/websocket_service.dart';
-
+// ... ostatak koda u ovoj datoteci je isti kao što sam ti poslao ranije ...
+// Samo su gornji importi promijenjeni.
 class TemperatureSensorsScreen extends StatefulWidget {
   const TemperatureSensorsScreen({super.key});
 
@@ -17,13 +16,12 @@ class TemperatureSensorsScreen extends StatefulWidget {
 
 class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
   late WebSocketService _webSocketService;
-  double _sliderValue = 50.0;
 
   @override
   void initState() {
     super.initState();
     _webSocketService = WebSocketService();
-    _webSocketService.connect('ws://192.168.1.100:81'); // Example URL
+    _webSocketService.connect('ws://192.168.1.100:81');
   }
 
   @override
@@ -70,7 +68,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                             style: const TextStyle(color: Colors.red),
                           );
                         }
-                        if (!snapshot.hasData || snapshot.data.isEmpty) {
+                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
                           return const Text(
                             'Connecting to device...',
                             style: TextStyle(
@@ -85,7 +83,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                                   sensorName: 'Test Sensor',
                                   temperature: 123.45,
                                   timestamp: DateTime.now());
-                              // ISPRAVLJEN POZIV
                               HiveDatabase.instance.insertSensorData(data);
                               setState(() {}); // Osvježi FutureBuilder
                             },
@@ -114,7 +111,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
               child: Card(
                 elevation: 2.0,
                 child: FutureBuilder<List<SensorData>>(
-                  // ISPRAVLJEN POZIV
                   future: HiveDatabase.instance.getAllSensorData(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {

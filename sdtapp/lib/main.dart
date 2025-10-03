@@ -1,19 +1,11 @@
 import 'package:flutter/material.dart';
-
-// NOVI import za Hive bazu
-import 'package:sdtapp/data/hive_database.dart';
-
-import 'package:sdtapp/screens/main_menu/main_menu_screen.dart';
-import 'package:sdtapp/theme/app_theme.dart';
+import 'data/hive_database.dart'; // <-- ISPRAVLJENO
+import 'screens/main_menu/main_menu_screen.dart'; // <-- ISPRAVLJENO
+import 'theme/app_theme.dart'; // <-- ISPRAVLJENO
 
 void main() async {
-  // Osigurava da je Flutter spreman
   WidgetsFlutterBinding.ensureInitialized();
-
-  // ISPRAVLJENO: Sada pozivamo inicijalizaciju za Hive, koja je sigurna!
   await HiveDatabase.instance.init();
-
-  // Pokrećemo aplikaciju
   runApp(const MyApp());
 }
 
