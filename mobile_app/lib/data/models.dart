@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 
 // --- MODEL ZA LIVE CAN PODATKE ---
-// Sadrži sva polja definirana u knowledge_base
 class LiveData {
   final double rpm;
   final double throttle;
@@ -27,8 +26,6 @@ class LiveData {
   });
 
   factory LiveData.fromJson(Map<String, dynamic> json) {
-    // Ključevi (npr. 'Gas (Throttle)') moraju točno odgovarati
-    // onima koje firmware šalje u JSON-u
     return LiveData(
       rpm: (json['RPM'] ?? 0.0).toDouble(),
       throttle: (json['Gas (Throttle)'] ?? 0.0).toDouble(),
@@ -44,8 +41,6 @@ class LiveData {
 }
 
 // --- MODELI ZA STRUKTURU I NAVIGACIJU IZBORNIKA ---
-
-// Glavna kategorija na početnom ekranu (npr. "Dijagnostika", "Postavke")
 class MainMenuCategory {
   final String name;
   final IconData icon;
@@ -58,13 +53,11 @@ class MainMenuCategory {
   });
 }
 
-// Pod-kategorija ili test (npr. "Senzori Temperature", "Test Injektora")
 class SubCategoryItem {
   final String name;
   final String? description;
-  final String routeName; // Jedinstvena putanja za navigaciju
+  final String routeName;
 
-  // Polja specifična za testove, mogu biti null
   double? measuredValue;
   String status;
 
