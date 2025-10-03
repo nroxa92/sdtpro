@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../services/websocket_service.dart'; // Importaj SdmTService
+import '../services/websocket_service.dart';
+import '../screens/settings_screen.dart'; // <-- DODAJ OVAJ IMPORT
 
 class MainScaffold extends StatelessWidget {
   final String title;
   final Widget body;
-  final SdmTService sdmTService = SdmTService(); // Instanca servisa
+  final SdmTService sdmTService = SdmTService();
 
   MainScaffold({
     required this.title,
@@ -25,7 +26,6 @@ class MainScaffold extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            // --- WIFI IKONA ---
             ValueListenableBuilder<bool>(
               valueListenable: sdmTService.isConnectedNotifier,
               builder: (context, isConnected, child) {
@@ -35,7 +35,6 @@ class MainScaffold extends StatelessWidget {
                     color: isConnected ? Colors.green : Colors.red,
                   ),
                   onPressed: () {
-                    // Logika za ponovno spajanje
                     sdmTService.connect();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -45,11 +44,7 @@ class MainScaffold extends StatelessWidget {
                 );
               },
             ),
-
-            // --- SPACER ---
-            const SizedBox(width: 40), // Prostor za srednji gumb
-
-            // --- CAN STATUS IKONA ---
+            const SizedBox(width: 40),
             ValueListenableBuilder<bool>(
               valueListenable: sdmTService.canActivityNotifier,
               builder: (context, isActive, child) {
@@ -65,7 +60,13 @@ class MainScaffold extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.settings),
-        onPressed: () {},
+        // AŽURIRANA onPressed METODA:
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const SettingsScreen()),
+          );
+        },
       ),
     );
   }
