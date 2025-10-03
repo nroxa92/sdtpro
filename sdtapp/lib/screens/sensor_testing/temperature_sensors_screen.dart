@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-// KONAČNI ISPRAVAK SVIH IMPORT NAREDBI
 import '../../data/hive_database.dart';
+
+// DODAN IMPORT KOJI JE NEDOSTAJAO:
+// Bez ovoga, datoteka ne zna što je 'LiveData' klasa.
+import '../../data/models.dart';
+
 import '../../models/sensor_data.dart';
-import '../../services/websocket_service.dart'; // <-- Ovdje je bio zadnji problem
+import '../../services/websocket_service.dart';
 
 class TemperatureSensorsScreen extends StatefulWidget {
   const TemperatureSensorsScreen({super.key});
@@ -15,19 +19,17 @@ class TemperatureSensorsScreen extends StatefulWidget {
 }
 
 class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
-  late WebSocketService _webSocketService;
+  final SdmTService _sdmtService = SdmTService();
 
   @override
   void initState() {
     super.initState();
-    _webSocketService = WebSocketService(); // Sada će ovo raditi
-    // Prilagodi IP adresu svom uređaju ako je potrebno
-    _webSocketService.connect('ws://192.168.1.100:81');
+    _sdmtService.connect();
   }
 
   @override
   void dispose() {
-    _webSocketService.dispose();
+    _sdmtService.disconnect();
     super.dispose();
   }
 
@@ -42,7 +44,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Live Data Section
             Card(
               elevation: 4.0,
               child: Padding(
@@ -51,26 +52,14 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Live Temperature',
+                      'Live Data',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 16),
-                    StreamBuilder(
-                      stream: _webSocketService.responses,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                        if (snapshot.hasError) {
-                          return Text(
-                            'Error: ${snapshot.error}',
-                            style: const TextStyle(color: Colors.red),
-                          );
-                        }
-                        if (!snapshot.hasData ||
-                            (snapshot.data as String).isEmpty) {
+                    ValueListenableBuilder<LiveData>(
+                      valueListenable: _sdmtService.liveDataNotifier,
+                      builder: (context, liveData, child) {
+                        if (!_sdmtService.isConnectedNotifier.value) {
                           return const Text(
                             'Connecting to device...',
                             style: TextStyle(
@@ -78,27 +67,14 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                           );
                         }
 
-                        return Column(
-                          children: [
-                            Text(
-                              snapshot.data.toString(),
-                              style: const TextStyle(
-                                  fontSize: 48, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 10),
-                            // Gumb za spremanje testnih podataka
-                            ElevatedButton(
-                                onPressed: () {
-                                  final data = SensorData(
-                                      sensorName: 'Test Sensor',
-                                      temperature: 123.45,
-                                      timestamp: DateTime.now());
-                                  HiveDatabase.instance.insertSensorData(data);
-                                  // Osvježi FutureBuilder tako što ćeš ponovno izgraditi widget
-                                  setState(() {});
-                                },
-                                child: const Text('Spremi Test Podatak')),
-                          ],
+                        // ISPRAVAK: Prikazujemo '0.0' ako je podatak null,
+                        // umjesto da se aplikacija sruši.
+                        final temp = liveData.coolantTemp;
+
+                        return Text(
+                          '${temp.toStringAsFixed(1)} °C',
+                          style: const TextStyle(
+                              fontSize: 48, fontWeight: FontWeight.bold),
                         );
                       },
                     ),
@@ -107,8 +83,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
               ),
             ),
             const SizedBox(height: 24),
-
-            // History Section
             Text(
               'Sensor History',
               style: Theme.of(context).textTheme.headlineSmall,
@@ -129,9 +103,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                     if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return const Center(child: Text('No history data.'));
                     }
-
                     final dataList = snapshot.data!;
-
                     return ListView.builder(
                       itemCount: dataList.length,
                       itemBuilder: (context, index) {
