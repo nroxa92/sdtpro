@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:sdtapp/data/models.dart';
-import 'package:sdtapp/widgets/main_scaffold.dart';
+
+// ISPRAVLJENE RELATIVNE PUTANJE
+// Idemo dvije razine gore (iz 'main_menu' i iz 'screens') da nađemo 'data' i 'widgets'
+import '../../data/models.dart';
+import '../../widgets/main_scaffold.dart';
+
+// Idemo jednu razinu gore da nađemo 'sensor_testing' mapu
 import '../sensor_testing/temperature_sensors_screen.dart';
 
 // Privremeni prazni ekrani da aplikacija radi
