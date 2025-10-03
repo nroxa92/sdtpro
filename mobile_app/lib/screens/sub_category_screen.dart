@@ -1,6 +1,6 @@
 // lib/screens/sub_category_screen.dart
 import 'package:flutter/material.dart';
-import '../models/models.dart';
+import '../data/models.dart';
 
 class SubCategoryScreen extends StatelessWidget {
   final MainMenuCategory category;

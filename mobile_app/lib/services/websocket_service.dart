@@ -1,10 +1,13 @@
 // lib/services/websocket_service.dart
 
+import 'dart:async';
+import 'dart:convert';
+
 import 'dart.async';
 import 'dart.convert';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import '../models/models.dart';
+import '../data/models.dart';
 
 class SdmTService {
   static final SdmTService _instance = SdmTService._internal();
@@ -17,7 +20,7 @@ class SdmTService {
   final ValueNotifier<bool> isConnectedNotifier = ValueNotifier(false);
   final ValueNotifier<LiveData> liveDataNotifier = ValueNotifier(LiveData());
   // VRAĆAMO NOTIFIER ZA CAN AKTIVNOST KOJI JE NEDOSTAJAO
-  final ValueNotifier<bool> canActivityNotifier = ValueNotifier(false); 
+  final ValueNotifier<bool> canActivityNotifier = ValueNotifier(false);
   Timer? _canActivityTimer;
 
   // ISPRAVAK: Metoda connect sada ima opcionalni argument s defaultnom IP adresom
@@ -49,7 +52,8 @@ class SdmTService {
     canActivityNotifier.value = true;
     _canActivityTimer?.cancel();
     _canActivityTimer = Timer(const Duration(milliseconds: 500), () {
-      canActivityNotifier.value = false; // Ugasimo status ako nema podataka pola sekunde
+      canActivityNotifier.value =
+          false; // Ugasimo status ako nema podataka pola sekunde
     });
 
     try {

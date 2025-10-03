@@ -1,7 +1,7 @@
 // lib/screens/main_menu.dart
 import 'package:flutter/material.dart';
 import '../data/sensor_database.dart';
-import '../models/models.dart';
+import '../data/models.dart';
 import './sub_category_screen.dart';
 
 class MainMenuScreen extends StatelessWidget {
@@ -51,7 +51,8 @@ class MainMenuScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(category.icon, size: 50, color: Theme.of(context).colorScheme.primary),
+            Icon(category.icon,
+                size: 50, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 16),
             Text(
               category.name,

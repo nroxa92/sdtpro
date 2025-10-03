@@ -1,6 +1,6 @@
 // lib/screens/sensor_testing/temperature_sensors_screen.dart
 import 'package:flutter/material.dart';
-import '../../models/models.dart';
+import '../../data/models.dart';
 
 class TemperatureSensorsScreen extends StatefulWidget {
   final List<SubCategoryItem> sensors;

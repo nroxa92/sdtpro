@@ -1,6 +1,6 @@
 // lib/screens/can_live_screen.dart
 import 'package:flutter/material.dart';
-import '../models/models.dart';
+import 'package:sdt_final/data/models.dart';
 import '../services/websocket_service.dart';
 
 class CanLiveScreen extends StatefulWidget {
@@ -33,14 +33,22 @@ class _CanLiveScreenState extends State<CanLiveScreen> {
               ),
               children: [
                 _buildDataCard('RPM', liveData.rpm.toStringAsFixed(0), 'rpm'),
-                _buildDataCard('Gas', liveData.throttle.toStringAsFixed(1), '%'),
-                _buildDataCard('Brzina', liveData.speed.toStringAsFixed(1), 'km/h'),
-                _buildDataCard('Gorivo', liveData.fuelLevel.toStringAsFixed(1), '%'),
-                _buildDataCard('Temp. Vode', liveData.coolantTemp.toStringAsFixed(1), '°C'),
-                _buildDataCard('Temp. Ulja', liveData.oilTemp.toStringAsFixed(1), '°C'),
-                _buildDataCard('Temp. Usisa', liveData.intakeTemp.toStringAsFixed(1), '°C'),
-                _buildDataCard('MAP Tlak', liveData.mapPressure.toStringAsFixed(0), 'hPa'),
-                _buildDataCard('Temp. Ispuha', liveData.exhaustTemp.toStringAsFixed(1), '°C'),
+                _buildDataCard(
+                    'Gas', liveData.throttle.toStringAsFixed(1), '%'),
+                _buildDataCard(
+                    'Brzina', liveData.speed.toStringAsFixed(1), 'km/h'),
+                _buildDataCard(
+                    'Gorivo', liveData.fuelLevel.toStringAsFixed(1), '%'),
+                _buildDataCard('Temp. Vode',
+                    liveData.coolantTemp.toStringAsFixed(1), '°C'),
+                _buildDataCard(
+                    'Temp. Ulja', liveData.oilTemp.toStringAsFixed(1), '°C'),
+                _buildDataCard('Temp. Usisa',
+                    liveData.intakeTemp.toStringAsFixed(1), '°C'),
+                _buildDataCard(
+                    'MAP Tlak', liveData.mapPressure.toStringAsFixed(0), 'hPa'),
+                _buildDataCard('Temp. Ispuha',
+                    liveData.exhaustTemp.toStringAsFixed(1), '°C'),
               ],
             );
           },
@@ -68,7 +76,10 @@ class _CanLiveScreenState extends State<CanLiveScreen> {
               children: [
                 Text(
                   value,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 Text(unit, style: Theme.of(context).textTheme.bodyMedium),
               ],

@@ -1,6 +1,8 @@
 // lib/data/sensor_database.dart
+import 'package:flutter/material.dart';
+import 'package:sdt_final/data/models.dart';
+
 import 'package.flutter/material.dart';
-import '../models/models.dart';
 
 // Definicija ruta kao konstanti radi izbjegavanja grešaka u pisanju
 class AppRoutes {
@@ -11,7 +13,8 @@ class AppRoutes {
 
 // Lista itema (senzora) koji će biti prikazani na ekranu za testiranje temperature
 final List<SubCategoryItem> temperatureSensorItems = [
-  SubCategoryItem(name: 'EGTS', routeName: ''), // Nema rutu jer je samo item u listi
+  SubCategoryItem(
+      name: 'EGTS', routeName: ''), // Nema rutu jer je samo item u listi
   SubCategoryItem(name: 'ECTS', routeName: ''),
   SubCategoryItem(name: 'EOTS', routeName: ''),
   SubCategoryItem(name: 'MATS', routeName: ''),
