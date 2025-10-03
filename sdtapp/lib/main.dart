@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 
-// Sada ova datoteka postoji i import će raditi.
-import 'theme/app_theme.dart';
+// NOVI import za Hive bazu
+import 'package:sdtapp/data/hive_database.dart';
 
-// Putanja do glavnog izbornika je ispravna.
-import 'screens/main_menu_screen.dart';
-
-// Import za bazu nam i dalje ne treba za ovaj test.
-// import 'data/sensor_database.dart';
+import 'package:sdtapp/screens/main_menu/main_menu_screen.dart';
+import 'package:sdtapp/theme/app_theme.dart';
 
 void main() async {
+  // Osigurava da je Flutter spreman
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Ostavljamo KLJUČNU LINIJU zakomentiranu za test.
-  // await SensorDatabase.instance.init();
+  // ISPRAVLJENO: Sada pozivamo inicijalizaciju za Hive, koja je sigurna!
+  await HiveDatabase.instance.init();
 
+  // Pokrećemo aplikaciju
   runApp(const MyApp());
 }
 
