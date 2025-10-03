@@ -1,7 +1,7 @@
 // lib/widgets/main_scaffold.dart
 
 import 'package:flutter/material.dart';
-import '../screens/main_menu.dart';
+import '../screens/main_menu_screen.dart';
 import '../services/websocket_service.dart';
 
 // Pretpostavka je da imate i druge ekrane definirane negdje

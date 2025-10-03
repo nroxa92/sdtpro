@@ -1,78 +1,45 @@
-// lib/models/models.dart
 import 'package:flutter/material.dart';
+import 'package:sdt_final/screens/main_menu_screen.dart';
+// Uklonili smo import za bazu jer je poziv zakomentiran.
+// import 'package:sdtapp/data/sensor_database.dart';
 
-// --- MODEL ZA LIVE CAN PODATKE ---
-// Sadrži sva polja definirana u knowledge_base
-class LiveData {
-  final double rpm;
-  final double throttle;
-  final double coolantTemp;
-  final double oilTemp;
-  final double speed;
-  final double fuelLevel;
-  final double mapPressure;
-  final double intakeTemp;
-  final double exhaustTemp;
+// ISPRAVLJEN IMPORT: Sada pokazuje na tvoj glavni izbornik.
+import 'package:sdtapp/screens/main_menu_screen.dart';
+import 'package:sdtapp/theme/app_theme.dart';
 
-  LiveData({
-    this.rpm = 0.0,
-    this.throttle = 0.0,
-    this.coolantTemp = 0.0,
-    this.oilTemp = 0.0,
-    this.speed = 0.0,
-    this.fuelLevel = 0.0,
-    this.mapPressure = 0.0,
-    this.intakeTemp = 0.0,
-    this.exhaustTemp = 0.0,
-  });
+void main() async {
+  // Ova linija je i dalje potrebna jer mnogi paketi (čak i ako ih ne zovemo
+  // direktno ovdje) mogu zahtijevati da je Flutter engine spreman.
+  WidgetsFlutterBinding.ensureInitialized();
 
-  factory LiveData.fromJson(Map<String, dynamic> json) {
-    // Ključevi (npr. 'Gas (Throttle)') moraju točno odgovarati
-    // onima koje firmware šalje u JSON-u
-    return LiveData(
-      rpm: (json['RPM'] ?? 0.0).toDouble(),
-      throttle: (json['Gas (Throttle)'] ?? 0.0).toDouble(),
-      coolantTemp: (json['Temp. rashl. tekućine (ECT)'] ?? 0.0).toDouble(),
-      oilTemp: (json['Temp. ulja (EOT)'] ?? 0.0).toDouble(),
-      speed: (json['Brzina vozila'] ?? 0.0).toDouble(),
-      fuelLevel: (json['Razina goriva'] ?? 0.0).toDouble(),
-      mapPressure: (json['Tlak (MAP)'] ?? 0.0).toDouble(),
-      intakeTemp: (json['Temp. usisnog zraka (MAT)'] ?? 0.0).toDouble(),
-      exhaustTemp: (json['Temp. ispuha (EGT)'] ?? 0.0).toDouble(),
+  // --- TEST ---
+  // Linija za inicijalizaciju baze ostaje zakomentirana. Ovo je i dalje
+  // najsumnjiviji dio koda koji uzrokuje rušenje.
+  // await SensorDatabase.instance.init();
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'sdtapp',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+
+      // ISPRAVLJEN POČETNI EKRAN:
+      // Sada aplikacija ispravno kreće od tvog glavnog izbornika.
+      home: const MainMenuScreen(),
     );
   }
 }
 
-// --- MODELI ZA STRUKTURU I NAVIGACIJU IZBORNIKA ---
+class AppTheme {
+  static ThemeData? get darkTheme => null;
 
-// Glavna kategorija na početnom ekranu (npr. "Dijagnostika", "Postavke")
-class MainMenuCategory {
-  final String name;
-  final IconData icon;
-  final List<SubCategoryItem> subCategories;
-
-  MainMenuCategory({
-    required this.name,
-    required this.icon,
-    required this.subCategories,
-  });
-}
-
-// Pod-kategorija ili test (npr. "Senzori Temperature", "Test Injektora")
-class SubCategoryItem {
-  final String name;
-  final String? description;
-  final String routeName; // Jedinstvena putanja za navigaciju
-
-  // Polja specifična za testove, mogu biti null
-  double? measuredValue;
-  String status;
-
-  SubCategoryItem({
-    required this.name,
-    required this.routeName,
-    this.description,
-    this.measuredValue,
-    this.status = 'pending',
-  });
+  static ThemeData? get lightTheme => null;
 }
