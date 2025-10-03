@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/websocket_service.dart';
-import '../screens/settings_screen.dart'; // <-- DODAJ OVAJ IMPORT
+import '../screens/settings_screen.dart';
 
 class MainScaffold extends StatelessWidget {
   final String title;
@@ -20,53 +20,60 @@ class MainScaffold extends StatelessWidget {
         title: Text(title),
       ),
       body: body,
+      // UKLONJENI FloatingActionButton i njegova lokacija
+
+      // AŽURIRANA DONJA TRAKA
       bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 6.0,
         child: Row(
+          // Raspoređujemo ikone ravnomjerno po cijeloj širini
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
+            // --- WIFI IKONA ---
             ValueListenableBuilder<bool>(
               valueListenable: sdmTService.isConnectedNotifier,
               builder: (context, isConnected, child) {
                 return IconButton(
+                  iconSize: 30.0, // Malo veća ikona
                   icon: Icon(
                     Icons.wifi,
+                    // ISPRAVLJENA LOGIKA BOJE: Zelena za spojeno, crvena za nespojeno
                     color: isConnected ? Colors.green : Colors.red,
                   ),
                   onPressed: () {
                     sdmTService.connect();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Pokušavam se ponovno spojiti...')),
-                    );
+                    // UKLONJENA "SnackBar" poruka
                   },
                 );
               },
             ),
-            const SizedBox(width: 40),
+
+            // --- NOVI SETTINGS GUMB U SREDINI ---
+            IconButton(
+              iconSize: 35.0, // Malo veća ikona
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const SettingsScreen()),
+                );
+              },
+            ),
+
+            // --- CAN STATUS IKONA ---
             ValueListenableBuilder<bool>(
               valueListenable: sdmTService.canActivityNotifier,
               builder: (context, isActive, child) {
                 return Icon(
                   Icons.directions_car,
-                  color: isActive ? Colors.green : Colors.grey,
+                  size: 30.0,
+                  // ISPRAVLJENA LOGIKA BOJE: Zelena za aktivnost, crvena za neaktivnost
+                  color: isActive ? Colors.green : Colors.red,
                 );
               },
             ),
           ],
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.settings),
-        // AŽURIRANA onPressed METODA:
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const SettingsScreen()),
-          );
-        },
       ),
     );
   }
