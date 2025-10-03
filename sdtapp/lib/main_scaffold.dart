@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/websocket_service.dart';
-import '../screens/settings_screen.dart';
+import 'websocket_service.dart';
+import 'settings_screen.dart';
 
 class MainScaffold extends StatelessWidget {
   final String title;

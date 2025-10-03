@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'data/hive_database.dart'; // <-- ISPRAVLJENO
-import 'screens/main_menu/main_menu_screen.dart'; // <-- ISPRAVLJENO
-import 'theme/app_theme.dart'; // <-- ISPRAVLJENO
+import 'hive_database.dart'; // <-- ISPRAVLJENO
+import 'main_menu_screen.dart'; // <-- ISPRAVLJENO
+import 'app_theme.dart'; // <-- ISPRAVLJENO
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

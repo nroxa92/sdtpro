@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Potrebno za izlaz iz aplikacije
 import 'about_screen.dart'; // Import za "O Aplikaciji" ekran
-import '../widgets/main_scaffold.dart';
+import 'main_scaffold.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
