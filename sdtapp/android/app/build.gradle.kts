@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.sdmt_final"
+    namespace = "com.example.sdtapp"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
