@@ -6,9 +6,10 @@ import '../services/websocket_service.dart';
 
 // Pretpostavka je da imate i druge ekrane definirane negdje
 // npr. placeholderi za 'live' i 'postavke'
-const Widget placeholderScreen1 = Center(child: Text('Live Screen Placeholder'));
-const Widget placeholderScreen2 = Center(child: Text('Settings Screen Placeholder'));
-
+const Widget placeholderScreen1 =
+    Center(child: Text('Live Screen Placeholder'));
+const Widget placeholderScreen2 =
+    Center(child: Text('Settings Screen Placeholder'));
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
@@ -31,7 +32,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   void initState() {
     super.initState();
     // Pozivamo connect bez argumenta, koristit će defaultnu IP adresu
-    _sdmTService.connect(); 
+    _sdmTService.connect();
   }
 
   @override
@@ -48,16 +49,16 @@ class _MainScaffoldState extends State<MainScaffold> {
             _currentIndex = index;
           });
         },
-        items: [
-          const BottomNavigationBarItem(
+        items: const [
+          BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Izbornik',
           ),
-          const BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.speed),
             label: 'Live',
           ),
-          const BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: 'Postavke',
           ),

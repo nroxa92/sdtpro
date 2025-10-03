@@ -1,6 +1,6 @@
 name: sdt_final
 description: SeaDooTool Pro diagnostic application.
-publish_to: 'none' # Spriječava slučajno objavljivanje paketa
+publish_to: 'none'
 
 version: 1.0.0+1
 
@@ -11,10 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
   
-  # Ključni paketi za aplikaciju
   web_socket_channel: ^2.4.0
   provider: ^6.0.5
-  fl_chart: ^0.64.0 # Za buduće grafove
+  fl_chart: ^0.64.0
 
   cupertino_icons: ^1.0.2
 
@@ -24,10 +23,5 @@ dev_dependencies:
   
   flutter_lints: ^2.0.0
 
-# Sljedeći dio je za Flutter specifične konfiguracije
 flutter:
   uses-material-design: true
-
-  # Ovdje se mogu dodati assets (slike, itd.) ili fontovi ako će biti potrebno
-  # assets:
-  #   - images/a_dot_burr.jpeg
