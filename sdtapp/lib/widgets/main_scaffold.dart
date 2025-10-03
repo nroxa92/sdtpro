@@ -65,10 +65,7 @@ class MainScaffold extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.settings),
-        onPressed: () {
-          // TODO: Otvori postavke, o aplikaciji, izlaz...
-          print('Settings button pressed');
-        },
+        onPressed: () {},
       ),
     );
   }
