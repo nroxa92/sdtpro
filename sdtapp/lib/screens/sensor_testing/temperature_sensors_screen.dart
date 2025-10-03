@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../data/hive_database.dart'; // <-- ISPRAVLJENO
-import '../../models/sensor_data.dart'; // <-- ISPRAVLJENO
-import '../../services/websocket_service.dart'; // <-- ISPRAVLJENO
 
-// ... ostatak koda u ovoj datoteci je isti kao što sam ti poslao ranije ...
-// Samo su gornji importi promijenjeni.
+// KONAČNI ISPRAVAK SVIH IMPORT NAREDBI
+import '../../data/hive_database.dart';
+import '../../models/sensor_data.dart';
+import '../../services/websocket_service.dart'; // <-- Ovdje je bio zadnji problem
+
 class TemperatureSensorsScreen extends StatefulWidget {
   const TemperatureSensorsScreen({super.key});
 
@@ -20,7 +20,8 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
   @override
   void initState() {
     super.initState();
-    _webSocketService = WebSocketService();
+    _webSocketService = WebSocketService(); // Sada će ovo raditi
+    // Prilagodi IP adresu svom uređaju ako je potrebno
     _webSocketService.connect('ws://192.168.1.100:81');
   }
 
@@ -68,7 +69,8 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                             style: const TextStyle(color: Colors.red),
                           );
                         }
-                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        if (!snapshot.hasData ||
+                            (snapshot.data as String).isEmpty) {
                           return const Text(
                             'Connecting to device...',
                             style: TextStyle(
@@ -76,22 +78,27 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                           );
                         }
 
-                        // Spremanje testnih podataka
-                        ElevatedButton(
-                            onPressed: () {
-                              final data = SensorData(
-                                  sensorName: 'Test Sensor',
-                                  temperature: 123.45,
-                                  timestamp: DateTime.now());
-                              HiveDatabase.instance.insertSensorData(data);
-                              setState(() {}); // Osvježi FutureBuilder
-                            },
-                            child: const Text('Spremi Test Podatak'));
-
-                        return Text(
-                          snapshot.data.toString(),
-                          style: const TextStyle(
-                              fontSize: 48, fontWeight: FontWeight.bold),
+                        return Column(
+                          children: [
+                            Text(
+                              snapshot.data.toString(),
+                              style: const TextStyle(
+                                  fontSize: 48, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 10),
+                            // Gumb za spremanje testnih podataka
+                            ElevatedButton(
+                                onPressed: () {
+                                  final data = SensorData(
+                                      sensorName: 'Test Sensor',
+                                      temperature: 123.45,
+                                      timestamp: DateTime.now());
+                                  HiveDatabase.instance.insertSensorData(data);
+                                  // Osvježi FutureBuilder tako što ćeš ponovno izgraditi widget
+                                  setState(() {});
+                                },
+                                child: const Text('Spremi Test Podatak')),
+                          ],
                         );
                       },
                     ),
@@ -132,7 +139,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                         return ListTile(
                           title: Text(
                               '${item.sensorName}: ${item.temperature.toStringAsFixed(2)}°C'),
-                          subtitle: Text(DateFormat('yyyy-MM-dd – kk:mm:ss')
+                          subtitle: Text(DateFormat('yyyy-MM-dd – HH:mm:ss')
                               .format(item.timestamp)),
                         );
                       },
