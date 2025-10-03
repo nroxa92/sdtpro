@@ -2,8 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:sdt_final/data/models.dart';
 
-import 'package.flutter/material.dart';
-
 // Definicija ruta kao konstanti radi izbjegavanja grešaka u pisanju
 class AppRoutes {
   static const String temperatureSensors = '/test/temperature_sensors';
