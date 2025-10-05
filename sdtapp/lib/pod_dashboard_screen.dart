@@ -14,6 +14,21 @@ class _PodDashboardScreenState extends State<PodDashboardScreen> {
   // Pristupamo našem singleton servisu
   final SdmTService _sdmTService = SdmTService();
 
+  // NOVO: Lokalno stanje za ručni odabir prikaza POD-a
+  int _selectedDisplayPodId = 0;
+
+  // NOVO: Mapa s imenima svih podova za padajući izbornik
+  final Map<int, String> _podOptions = {
+    0: 'Prikaži "Nije Spojen"',
+    1: 'Prikaži ECU Pod (EB1)',
+    2: 'Prikaži iBR Pod',
+    3: 'Prikaži Cluster Pod',
+    4: 'Prikaži Pod 4',
+    5: 'Prikaži Pod 5',
+    6: 'Prikaži Pod 6',
+    7: 'Prikaži Pod 7',
+  };
+
   @override
   Widget build(BuildContext context) {
     return MainScaffold(
@@ -22,48 +37,72 @@ class _PodDashboardScreenState extends State<PodDashboardScreen> {
         title: const Text('POD Dashboard'),
         centerTitle: true,
       ),
-      body: ValueListenableBuilder<PodStatus>(
-        valueListenable: _sdmTService.podStatusNotifier,
-        builder: (context, podStatus, child) {
-          return Column(
-            children: [
-              // 1. STATUSNA TRAKA NA VRHU
-              _buildStatusHeader(context, podStatus),
+      body: Column(
+        children: [
+          // 1. STATUSNA TRAKA NA VRHU (UVIJEK PRIKAZUJE STVARNI STATUS)
+          // Slušamo stvarni status samo za tekstualni prikaz
+          ValueListenableBuilder<PodStatus>(
+            valueListenable: _sdmTService.podStatusNotifier,
+            builder: (context, realPodStatus, child) {
+              return _buildStatusHeader(context, realPodStatus);
+            },
+          ),
 
-              // 2. GLAVNI SADRŽAJ EKRANA
-              Expanded(
-                child: _buildPodContent(context, podStatus),
-              ),
-            ],
-          );
-        },
+          // 2. GLAVNI SADRŽAJ EKRANA (KORISTI LOKALNI RUČNI ODABIR)
+          Expanded(
+            child: _buildPodContentById(_selectedDisplayPodId),
+          ),
+        ],
       ),
     );
   }
 
-  // Widget za prikaz statusne trake (ostaje isti)
-  Widget _buildStatusHeader(BuildContext context, PodStatus podStatus) {
+  // Widget za prikaz statusne trake s novim padajućim izbornikom
+  Widget _buildStatusHeader(BuildContext context, PodStatus realPodStatus) {
     return Container(
       width: double.infinity,
-      color: podStatus.color.withOpacity(0.3),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Text(
-        'Spojen: ${podStatus.name}',
-        style: Theme.of(context).textTheme.titleMedium,
-        textAlign: TextAlign.center,
+      color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Prikaz stvarnog, fizičkog statusa
+          Text(
+            'Spojen: ${realPodStatus.name}',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          // Padajući izbornik za ručni odabir prikaza
+          DropdownButton<int>(
+            value: _selectedDisplayPodId,
+            underline: Container(), // Uklanja donju crtu
+            items: _podOptions.entries.map((entry) {
+              return DropdownMenuItem<int>(
+                value: entry.key,
+                child: Text(entry.value, style: const TextStyle(fontSize: 14)),
+              );
+            }).toList(),
+            onChanged: (newValue) {
+              if (newValue != null) {
+                setState(() {
+                  _selectedDisplayPodId = newValue;
+                });
+              }
+            },
+          ),
+        ],
       ),
     );
   }
 
   // --- GLAVNA LOGIKA ZA PRIKAZ SADRŽAJA ---
-  Widget _buildPodContent(BuildContext context, PodStatus podStatus) {
-    // Ovisno o ID-u spojenog POD-a, prikazujemo različito sučelje
-    switch (podStatus.id) {
+  // Ažurirana metoda koja koristi ID iz lokalnog stanja
+  Widget _buildPodContentById(int podId) {
+    switch (podId) {
       case 1: // ID 1 = ECU POD (EB1)
         return _buildEcuPodLayout();
       // TODO: case 2: return _buildIbrPodLayout();
       // TODO: case 3: return _buildClusterPodLayout();
-      default: // Ako nijedan POD nije spojen, prikaži poruku
+      default: // Ako je odabran "Nije Spojen" ili nepoznat ID
         return const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -109,7 +148,7 @@ class _PodDashboardScreenState extends State<PodDashboardScreen> {
     );
   }
 
-  // --- KARTICE ZA ECU POD ---
+  // --- KARTICE ZA ECU POD (ostaju iste) ---
 
   Widget _buildNapajanjeCard(BuildContext context, EcuPodData data) {
     return Card(
@@ -281,9 +320,8 @@ class _PodDashboardScreenState extends State<PodDashboardScreen> {
     );
   }
 
-  // --- POMOĆNI WIDGETI ZA ČISTIJI KOD ---
+  // --- POMOĆNI WIDGETI ZA ČISTIJI KOD (ostaju isti) ---
 
-  // Pomoćni widget za prikaz retka s informacijom (npr. "Napon: 12.5V")
   Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -298,7 +336,6 @@ class _PodDashboardScreenState extends State<PodDashboardScreen> {
     );
   }
 
-  // Pomoćni widget za prikaz statusne lampice (npr. za masu)
   Widget _buildStatusLight(String label, bool isActive) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
