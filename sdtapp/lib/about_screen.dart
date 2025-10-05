@@ -1,9 +1,22 @@
-// lib/about_screen.dart - INFORMACIJE O PROJEKTU
 import 'package:flutter/material.dart';
 import 'main_scaffold.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
+
+  // Pomoćna metoda za prikaz detalja
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          Text(value),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +46,6 @@ class AboutScreen extends StatelessWidget {
             _buildInfoRow('Core MCU:', 'ESP32-32D'),
             _buildInfoRow('CAN Transceiver:', 'SN65HVD230/VP230 (3.3V)'),
             _buildInfoRow('CAN Brzina:', '500 kbps'),
-            _buildInfoRow('Framework:', 'Arduino (PlatformIO)'),
             _buildInfoRow('Komunikacija:', 'WebSocket na 192.168.4.1/ws'),
             const SizedBox(height: 20),
 
@@ -45,19 +57,6 @@ class AboutScreen extends StatelessWidget {
             _buildInfoRow('Žuta (D14):', 'CAN Aktivnost (Treperi)'),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-          Text(value),
-        ],
       ),
     );
   }

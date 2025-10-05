@@ -1,4 +1,4 @@
-// lib/temperature_sensors_screen.dart - FINALNO ČIŠĆENJE
+// lib/temperature_sensors_screen.dart - KONAČNI POPRAVAK SELEKCIJE I UI-ja
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -10,7 +10,6 @@ import 'main_scaffold.dart';
 class TemperatureSensorsScreen extends StatefulWidget {
   const TemperatureSensorsScreen({super.key, required this.sensors});
 
-  // Upozorenje: Koristimo 'const' za poboljšanje performansi
   final List<TemperatureSensorSpec> sensors;
 
   @override
@@ -26,7 +25,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
   final List<FlSpot> _voltageSpots = [];
   final List<FlSpot> _currentSpots = [];
   int _xValue = 0;
-  static const int _maxDataPoints = 50; // Upozorenje: const
+  static const int _maxDataPoints = 50;
 
   @override
   void initState() {
@@ -91,6 +90,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
       'error' => Colors.redAccent,
       _ => Colors.grey,
     };
+    // Trokut (Status Boja je primarna)
     return Icon(Icons.change_history, size: 24, color: color);
   }
 
@@ -105,7 +105,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildReferenceInfo(context), // RJEŠENJE PROBLEMA 1: Poziv metode
+            _buildReferenceInfo(context),
             const SizedBox(height: 32),
             _buildResistanceTable(context),
             const SizedBox(height: 32),
@@ -116,6 +116,17 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
     );
   }
 
+  // NOVA METODA ZA RUKOVANJE KLIKOM (Da bude čisto i ponovljivo)
+  void _handleRowTap(TemperatureSensorSpec sensor) {
+    setState(() {
+      _selectedSensor = sensor;
+      _voltageSpots.clear();
+      _currentSpots.clear();
+      _xValue = 0;
+      _sdmTService.sendCommand('MEASURE_LIVE:${_selectedSensor!.id}');
+    });
+  }
+
   Widget _buildResistanceTable(BuildContext context) {
     return Card(
       elevation: 4,
@@ -123,7 +134,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
-            // Upozorenje: const
             padding: EdgeInsets.all(16.0),
             child: Text(
               'Mjerenje Otpora i Pinout',
@@ -134,6 +144,8 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
             scrollDirection: Axis.horizontal,
             child: DataTable(
               columnSpacing: 16.0,
+              // UKLANJAMO 'selected' STILIZACIJU NA RAZINI TABLICE
+              showCheckboxColumn: false, // OVO RJEŠAVA PROBLEM KVADRATIĆA!
               columns: const [
                 DataColumn(label: Text('')),
                 DataColumn(label: Text('ID')),
@@ -144,20 +156,17 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
               ],
               rows: widget.sensors.map((sensor) {
                 final isSelected = _selectedSensor == sensor;
+
+                // Ručna kontrola pozadine retka za selekciju
+                final rowColor = isSelected
+                    ? Theme.of(context).primaryColor.withOpacity(0.2)
+                    : Colors.transparent;
+
                 return DataRow(
-                  selected: isSelected,
-                  onSelectChanged: (isSelected) {
-                    if (isSelected ?? false) {
-                      setState(() {
-                        _selectedSensor = sensor;
-                        _voltageSpots.clear();
-                        _currentSpots.clear();
-                        _xValue = 0;
-                        _sdmTService
-                            .sendCommand('MEASURE_LIVE:${_selectedSensor!.id}');
-                      });
-                    }
-                  },
+                  // Postavljanje pozadine i onTapa na cijeli redak
+                  color: WidgetStateProperty.all(rowColor),
+                  onSelectChanged: (_) => _handleRowTap(
+                      sensor), // Koristimo onSelectChanged za cijeli redak
                   cells: [
                     DataCell(_buildStatusSymbol(sensor.status)),
                     DataCell(Text(sensor.id)),
@@ -213,7 +222,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
             ValueListenableBuilder<LiveData>(
               valueListenable: _sdmTService.liveDataNotifier,
               builder: (context, liveData, child) {
-                // Upozorenje: Riješeno uklanjanjem nepotrebnih zagrada
                 return Text(
                   'Napon: ${liveData.measuredVoltage.toStringAsFixed(2)} V | Struja: ${liveData.measuredCurrent.toStringAsFixed(2)} A (Max A: ${maxCurrent.toStringAsFixed(2)})',
                   style: Theme.of(context).textTheme.bodyLarge,
@@ -229,7 +237,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                   maxX: _maxDataPoints.toDouble() - 1,
                   minY: 0,
                   maxY: voltageRange.toDouble(),
-                  // Upozorenja: const
                   gridData: const FlGridData(
                       show: true,
                       drawVerticalLine: false,
@@ -269,7 +276,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
             ),
             const SizedBox(height: 12),
             const Row(
-              // Upozorenje: const
               children: [
                 SizedBox(
                     width: 10,
@@ -292,7 +298,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
     );
   }
 
-  // --- REFERENTNA INFO TABLICA ---
   Widget _buildReferenceInfo(BuildContext context) {
     final referentniRedovi = detailedResistanceTable.map((e) {
       final tolerance = e.high - e.nominal;
@@ -323,7 +328,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
             Text('Referentna Tablica Otpora',
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
-            // AŽURIRANI HEADER SA IKONAMA
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               child: Row(
