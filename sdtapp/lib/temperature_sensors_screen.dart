@@ -1,14 +1,13 @@
-// lib/temperature_sensors_screen.dart - REVIDIRANA VERZIJA
+// lib/temperature_sensors_screen.dart - FINALNA REVIZIJA ZA LIVE V/A PODATKE
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-// *** GREŠKA POPRAVLJENA: Uključivanje definicija i podataka ***
 import 'models.dart';
-import 'sensor_data.dart'; // Rješava grešku 'referenceResistanceTable'
+import 'sensor_data.dart';
 import 'websocket_service.dart';
+import 'main_scaffold.dart'; // Dodajemo uvoz ako je bio potreban za AppBar
 
 class TemperatureSensorsScreen extends StatefulWidget {
-  // Primamo statične podatke (listu senzora) kroz konstruktor
   final List<TemperatureSensorSpec> sensors;
   const TemperatureSensorsScreen({super.key, required this.sensors});
 
@@ -18,7 +17,6 @@ class TemperatureSensorsScreen extends StatefulWidget {
 }
 
 class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
-  // *** GREŠKA POPRAVLJENA: Koristimo konstruktor servisa, a ne getter 'instance' ***
   final SdmTService _sdmTService = SdmTService();
 
   TemperatureSensorSpec? _selectedSensor;
@@ -27,7 +25,8 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
   final List<FlSpot> _currentSpots = [];
   int _xValue = 0;
   final int _maxDataPoints = 50;
-  Timer? _measurementTimer;
+
+  // Uklonili smo Timer? _measurementTimer; jer C++ šalje podatke automatski
 
   @override
   void initState() {
@@ -35,18 +34,22 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
     _selectedSensor = widget.sensors.first;
 
     _initialResistanceMeasurement();
+    // Pokretanje slušanja promjena za V/A graf
     _sdmTService.liveDataNotifier.addListener(_updateGraphData);
-    _startGraphMeasurement();
+
+    // VAŽNO: Postavljamo početni cilj za C++ kod odmah pri ulasku na ekran
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _sdmTService.sendCommand('MEASURE_LIVE:${_selectedSensor!.id}');
+    });
   }
 
   @override
   void dispose() {
     _sdmTService.liveDataNotifier.removeListener(_updateGraphData);
-    _measurementTimer?.cancel();
     super.dispose();
   }
 
-  // --- LOGIKA ZA PODATKE (Ostaje ista) ---
+  // --- LOGIKA ZA PODATKE ---
 
   void _initialResistanceMeasurement() {
     // *SIMULACIJA*: U stvarnosti, hardver bi poslao JSON sa svim otporima odjednom
@@ -54,7 +57,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
       if (!mounted) return;
       setState(() {
         for (var sensor in widget.sensors) {
-          // Ovdje bi se ažuriralo na temelju podataka s hardvera
           if (sensor.id == 'ECTS') {
             sensor.measuredResistance = 1750;
             sensor.status = 'ok';
@@ -67,15 +69,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
           }
         }
       });
-    });
-  }
-
-  void _startGraphMeasurement() {
-    _measurementTimer =
-        Timer.periodic(const Duration(milliseconds: 250), (timer) {
-      if (_selectedSensor != null && _sdmTService.isConnectedNotifier.value) {
-        _sdmTService.sendCommand('MEASURE_LIVE:${_selectedSensor!.id}');
-      }
     });
   }
 
@@ -95,7 +88,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
     });
   }
 
-  // --- SIMBOLIKA STATUSA (Ostaje ista) ---
+  // --- SIMBOLIKA STATUSA ---
 
   Widget _buildStatusSymbol(String status) {
     final Color color = switch (status) {
@@ -119,11 +112,12 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
     );
   }
 
-  // --- WIDGETI ZA PRIKAZ (Ostaje isti, osim popravka upozorenja) ---
+  // --- WIDGETI ZA PRIKAZ ---
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return MainScaffold(
+      // Koristimo AppBar koji se prosljeđuje MainScaffold-u
       appBar: AppBar(title: const Text('SENZORI TEMPERATURE (NTC)')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -138,6 +132,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
           ],
         ),
       ),
+      title: '',
     );
   }
 
@@ -174,11 +169,12 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                     if (isSelected ?? false) {
                       setState(() {
                         _selectedSensor = sensor;
-                        _voltageSpots.clear();
-                        _currentSpots.clear();
+                        _voltageSpots.clear(); // Resetiraj graf
+                        _currentSpots.clear(); // Resetiraj graf
                         _xValue = 0;
-                        _sdmTService.sendCommand(
-                            'SET_MEASURE_TARGET:${_selectedSensor!.id}');
+                        // POPRAVAK: Slanje komande koju C++ sluša
+                        _sdmTService
+                            .sendCommand('MEASURE_LIVE:${_selectedSensor!.id}');
                       });
                     }
                   },
@@ -203,7 +199,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
   Widget _buildLiveGraph(BuildContext context) {
     if (_selectedSensor == null) return const SizedBox.shrink();
 
-    // Rješava upozorenje (maxCurrent sada služi za logiku opsega)
     final maxVoltage = _voltageSpots.isNotEmpty
         ? _voltageSpots.map((s) => s.y).reduce((a, b) => a > b ? a : b)
         : 5.0;

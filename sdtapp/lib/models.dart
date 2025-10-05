@@ -1,8 +1,7 @@
-// lib/data/models.dart
+// lib/models.dart - KOMPLETNA VERZIJA S CAN_LIVE_DATA
 import 'package:flutter/material.dart';
 
 // --- MODELI ZA STRUKTURU I NAVIGACIJU IZBORNIKA ---
-// Ovi modeli ostaju nepromijenjeni (MainMenuCategory i SubCategoryItem)
 class MainMenuCategory {
   final String name;
   final IconData icon;
@@ -28,11 +27,8 @@ class SubCategoryItem {
 }
 
 // ------------------------------------------------------------------
-// --- MODEL ZA LIVE CAN PODATKE (koristi se za graf) ---
-// Sadrži samo generičke polja za live mjerenje Napona/Struje
-// Hardver će slati podatke o trenutno odabranom senzoru u ovim poljima.
+// --- MODEL ZA LIVE MJERENJE SENZORA (koristi se za V/A graf) ---
 class LiveData {
-  // Napon i struja trenutno odabranog senzora
   final double measuredVoltage;
   final double measuredCurrent;
 
@@ -43,8 +39,6 @@ class LiveData {
 
   static LiveData initial() => LiveData();
 
-  // Tvornička metoda za stvaranje objekta iz JSON-a
-  // Hardver će slati JSON poput: {"Voltage": 2.75, "Current": 0.003}
   factory LiveData.fromJson(Map<String, dynamic> json) {
     return LiveData(
       measuredVoltage: (json['Voltage'] ?? 0.0).toDouble(),
@@ -54,17 +48,65 @@ class LiveData {
 }
 
 // ------------------------------------------------------------------
+// --- NOVI MODEL ZA LIVE CAN DASHBOARD ---
+// Rješava sve greške u websocket_service.dart i can_live_screen.dart
+class CanLiveData {
+  final double rpm;
+  final double throttlePercent;
+  final double coolantTemp;
+  final double oilTemp;
+  final double speedKmh;
+  final double fuelLevel;
+  final double mapKpa;
+  final double intakeTemp;
+  final double exhaustTemp;
+  final double batteryVoltage;
+  final int gear;
+
+  CanLiveData({
+    this.rpm = 0.0,
+    this.throttlePercent = 0.0,
+    this.coolantTemp = 0.0,
+    this.oilTemp = 0.0,
+    this.speedKmh = 0.0,
+    this.fuelLevel = 0.0,
+    this.mapKpa = 0.0,
+    this.intakeTemp = 0.0,
+    this.exhaustTemp = 0.0,
+    this.batteryVoltage = 0.0,
+    this.gear = 0,
+  });
+
+  static CanLiveData initial() => CanLiveData();
+
+  factory CanLiveData.fromJson(Map<String, dynamic> json) {
+    return CanLiveData(
+      // Koristimo ključeve iz revidiranog C++ Firmwarea (main.cpp)
+      rpm: (json['rpm'] ?? 0.0).toDouble(),
+      throttlePercent: (json['throttlePercent'] ?? 0.0).toDouble(),
+      coolantTemp: (json['coolantTemp'] ?? 0.0).toDouble(),
+      oilTemp: (json['oilTemp'] ?? 0.0).toDouble(),
+      speedKmh: (json['speedKmh'] ?? 0.0).toDouble(),
+      fuelLevel: (json['fuelLevel'] ?? 0.0).toDouble(),
+      mapKpa: (json['mapKpa'] ?? 0.0).toDouble(),
+      intakeTemp: (json['intakeTemp'] ?? 0.0).toDouble(),
+      exhaustTemp: (json['exhaustTemp'] ?? 0.0).toDouble(),
+      batteryVoltage: (json['batteryVoltage'] ?? 0.0).toDouble(),
+      gear: (json['gear'] ?? 0) as int, // Gear je cijeli broj
+    );
+  }
+}
+
+// ------------------------------------------------------------------
 // --- MODEL ZA SPECIFIKACIJU I TRENUTNO MJERENJE OTpora SENZORA ---
-// Sadrži statičke (pinout) i dinamičke (measuredResistance, status) podatke
 class TemperatureSensorSpec {
-  final String id; // EGTS, ECTS, itd.
+  final String id;
   final String name;
   final String ecuPinout;
-  final Map<int, int> resistanceTable; // {Temp_C: Nominalni_Otpor_Ohms}
+  final Map<int, int> resistanceTable;
 
-  // Dinamička polja za prikaz na ekranu Otpora
   double? measuredResistance;
-  String status; // 'ok', 'error', 'pending'
+  String status;
 
   TemperatureSensorSpec({
     required this.id,
@@ -75,7 +117,6 @@ class TemperatureSensorSpec {
     this.status = 'pending',
   });
 
-  // Metoda za kreiranje kopije objekta s novim dinamičkim podacima
   TemperatureSensorSpec copyWith({
     double? measuredResistance,
     String? status,

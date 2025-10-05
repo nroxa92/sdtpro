@@ -1,9 +1,10 @@
-// lib/services/websocket_service.dart
-
+// lib/services/websocket_service.dart - KONAČNI POPRAVAK
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+
+// VRLO VAŽNO: Osiguravamo da je uvoz models.dart točan!
 import 'models.dart';
 
 class SdmTService {
@@ -16,15 +17,22 @@ class SdmTService {
 
   final ValueNotifier<bool> isConnectedNotifier = ValueNotifier(false);
   final ValueNotifier<LiveData> liveDataNotifier = ValueNotifier(LiveData());
-  // VRAĆAMO NOTIFIER ZA CAN AKTIVNOST KOJI JE NEDOSTAJAO
+
+  // Riješena greška: CanLiveData sada je ispravno prepoznata kao tip
+  final ValueNotifier<CanLiveData> canLiveDataNotifier =
+      ValueNotifier(CanLiveData());
+
   final ValueNotifier<bool> canActivityNotifier = ValueNotifier(false);
   Timer? _canActivityTimer;
 
-  // ISPRAVAK: Metoda connect sada ima opcionalni argument s defaultnom IP adresom
   Future<void> connect([String ipAddress = '192.168.4.1']) async {
     if (isConnectedNotifier.value) {
-      disconnect();
+      if (kDebugMode) {
+        debugPrint('WebSocket already connected.');
+      }
+      return;
     }
+
     try {
       final uri = Uri.parse('ws://$ipAddress/ws');
       _channel = WebSocketChannel.connect(uri);
@@ -32,30 +40,48 @@ class SdmTService {
 
       _subscription = _channel!.stream.listen(
         _onData,
-        onDone: disconnect,
+        onDone: _handleDisconnect,
         onError: (error) {
           debugPrint('WebSocket Error: $error');
-          disconnect();
+          _handleDisconnect();
         },
       );
+      if (kDebugMode) debugPrint('WebSocket connected to $ipAddress');
     } catch (e) {
       debugPrint('Connection failed: $e');
-      isConnectedNotifier.value = false;
+      _handleDisconnect();
     }
   }
 
   void _onData(dynamic data) {
-    // Svaki put kad stignu podaci, znamo da je CAN aktivan
+    // Ažuriramo status CAN aktivnosti
     canActivityNotifier.value = true;
     _canActivityTimer?.cancel();
     _canActivityTimer = Timer(const Duration(milliseconds: 500), () {
-      canActivityNotifier.value =
-          false; // Ugasimo status ako nema podataka pola sekunde
+      canActivityNotifier.value = false;
     });
 
     try {
       final jsonData = jsonDecode(data as String);
-      liveDataNotifier.value = LiveData.fromJson(jsonData);
+
+      final String dataType = jsonData['type'] as String? ?? '';
+
+      // Riješena stilska greška: Dodane vitičaste zagrade {}
+      if (dataType == 'CAN_LIVE') {
+        canLiveDataNotifier.value = CanLiveData.fromJson(jsonData);
+        if (kDebugMode) {
+          debugPrint('Parsed CAN_LIVE (RPM: ${canLiveDataNotifier.value.rpm})');
+        }
+      }
+
+      // Riješena stilska greška: Dodane vitičaste zagrade {}
+      if (dataType == 'LIVE_MEASUREMENT') {
+        liveDataNotifier.value = LiveData.fromJson(jsonData);
+        if (kDebugMode) {
+          debugPrint(
+              'Parsed LIVE_MEASUREMENT (V: ${liveDataNotifier.value.measuredVoltage})');
+        }
+      }
     } catch (e) {
       debugPrint('Error parsing JSON data: $e');
     }
@@ -63,15 +89,25 @@ class SdmTService {
 
   void sendCommand(String command) {
     if (isConnectedNotifier.value && _channel != null) {
+      if (kDebugMode) debugPrint('WS SEND: $command');
       _channel!.sink.add(command);
+    } else {
+      if (kDebugMode) debugPrint('WS SEND FAILED: Not connected.');
     }
   }
 
-  void disconnect() {
+  void _handleDisconnect() {
     _subscription?.cancel();
     _channel?.sink.close();
     isConnectedNotifier.value = false;
     canActivityNotifier.value = false;
+
     liveDataNotifier.value = LiveData();
+    canLiveDataNotifier.value = CanLiveData();
+    if (kDebugMode) debugPrint('WebSocket disconnected.');
+  }
+
+  void disconnect() {
+    _handleDisconnect();
   }
 }

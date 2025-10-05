@@ -1,31 +1,33 @@
+// lib/main_scaffold.dart - POPRAVLJENA VERZIJA
 import 'package:flutter/material.dart';
 import 'websocket_service.dart';
-import 'settings_screen.dart';
+import 'settings_screen.dart'; // Uvoz mora biti točan ako se koristi
 
 class MainScaffold extends StatelessWidget {
   final String title;
   final Widget body;
+  // AppBar je sada opcionalan i čuva se kao dio klase
+  final AppBar? appBar;
   final SdmTService sdmTService = SdmTService();
 
+  // Konstruktor je ispravljen: 'appBar' je sada dio klase, a ne samo argument
   MainScaffold({
+    super.key,
     required this.title,
     required this.body,
-    super.key,
+    this.appBar, // AppBar je opcionalan
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
+      // Koristimo AppBar koji je proslijeđen (ako postoji)
+      appBar: appBar ?? AppBar(title: Text(title)),
       body: body,
-      // UKLONJENI FloatingActionButton i njegova lokacija
 
       // AŽURIRANA DONJA TRAKA
       bottomNavigationBar: BottomAppBar(
         child: Row(
-          // Raspoređujemo ikone ravnomjerno po cijeloj širini
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             // --- WIFI IKONA ---
@@ -33,15 +35,13 @@ class MainScaffold extends StatelessWidget {
               valueListenable: sdmTService.isConnectedNotifier,
               builder: (context, isConnected, child) {
                 return IconButton(
-                  iconSize: 30.0, // Malo veća ikona
+                  iconSize: 30.0,
                   icon: Icon(
                     Icons.wifi,
-                    // ISPRAVLJENA LOGIKA BOJE: Zelena za spojeno, crvena za nespojeno
                     color: isConnected ? Colors.green : Colors.red,
                   ),
                   onPressed: () {
                     sdmTService.connect();
-                    // UKLONJENA "SnackBar" poruka
                   },
                 );
               },
@@ -49,9 +49,11 @@ class MainScaffold extends StatelessWidget {
 
             // --- NOVI SETTINGS GUMB U SREDINI ---
             IconButton(
-              iconSize: 35.0, // Malo veća ikona
+              iconSize: 35.0,
               icon: const Icon(Icons.settings),
               onPressed: () {
+                // Koristimo pushNamed ako je ruta definirana u main.dart, ili MaterialPageRoute
+                // Ovdje koristimo MaterialPageRoute jer ne znamo točnu rutu 'settings'
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -65,9 +67,8 @@ class MainScaffold extends StatelessWidget {
               valueListenable: sdmTService.canActivityNotifier,
               builder: (context, isActive, child) {
                 return Icon(
-                  Icons.directions_car,
+                  Icons.directions_car, // Ikona za CAN/Vozilo
                   size: 30.0,
-                  // ISPRAVLJENA LOGIKA BOJE: Zelena za aktivnost, crvena za neaktivnost
                   color: isActive ? Colors.green : Colors.red,
                 );
               },

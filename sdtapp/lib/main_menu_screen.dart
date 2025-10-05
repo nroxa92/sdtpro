@@ -1,4 +1,4 @@
-// lib/main_menu_screen.dart - REVIDIRANA VERZIJA
+// lib/main_menu_screen.dart - REVIDIRANA VERZIJA (Rješava problem "Uskoro...")
 import 'package:flutter/material.dart';
 
 // Uvozimo SVE modele i podatke iz centralnih datoteka
@@ -6,6 +6,7 @@ import 'models.dart';
 import 'main_scaffold.dart';
 import 'sensor_data.dart'; // Uvozi mainMenuCategories i temperatureSensorItems
 import 'temperature_sensors_screen.dart';
+import 'can_live_screen.dart'; // Uvozimo stvarni ekran za Live CAN podatke
 
 // Privremeni prazni ekrani za neimplementirane funkcionalnosti
 class PlaceholderScreen extends StatelessWidget {
@@ -75,7 +76,7 @@ class MainMenuScreen extends StatelessWidget {
   }
 }
 
-// Ekran za prikaz pod-kategorija (SubCategoryScreen) ostaje ovdje jer je ključan za navigaciju
+// Ekran za prikaz pod-kategorija (SubCategoryScreen)
 class SubCategoryScreen extends StatelessWidget {
   final MainMenuCategory category;
 
@@ -99,20 +100,20 @@ class SubCategoryScreen extends StatelessWidget {
               onTap: () {
                 Widget screen;
                 switch (item.routeName) {
-                  case AppRoutes
-                        .temperatureSensors: // Koristimo konstantu rute iz sensor_data.dart
-                    // ISPRAVAK: PROSLJEĐUJEMO LISTU SENZORA
+                  case AppRoutes.temperatureSensors:
+                    // Prosljeđujemo listu senzora ekranu
                     screen = TemperatureSensorsScreen(
                       sensors: temperatureSensorItems,
                     );
                     break;
-                  case '/can/live':
-                    // Zamijenite s ispravnim CanLiveScreen
-                    screen = PlaceholderScreen(title: item.name);
+
+                  case AppRoutes.canLiveData: // RJEŠENJE ZA CAN BUS LIVE
+                    screen = const CanLiveScreen(); // Navigira na stvarni ekran
                     break;
-                  // Dodajte ostale case blokove ovdje
+
                   default:
                     screen = PlaceholderScreen(title: item.name);
+                    break;
                 }
                 Navigator.push(
                     context, MaterialPageRoute(builder: (context) => screen));
