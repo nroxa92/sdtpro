@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'websocket_service.dart'; // ISPRAVAK: Importamo ispravnu datoteku
+import 'websocket_service.dart';
 import 'app_routes.dart';
+import 'models.dart'; // KLJUČAN IMPORT KOJI JE NEDOSTAJAO
 
 class MainScaffold extends StatelessWidget {
   final String title;

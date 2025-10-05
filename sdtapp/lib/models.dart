@@ -1,4 +1,3 @@
-// lib/models.dart - KOMPLETNA VERZIJA S IBR_POSITION
 import 'package:flutter/material.dart';
 
 // --- MODELI ZA STRUKTURU I NAVIGACIJU IZBORNIKA ---
@@ -26,8 +25,121 @@ class SubCategoryItem {
   });
 }
 
+// --- MODEL ZA STATUS SPOJENOG POD-a ---
+// (Premješteno iz websocket_service.dart)
+class PodStatus {
+  final int id;
+  final String name;
+  final Color color;
+
+  PodStatus({
+    this.id = 0,
+    this.name = 'Nije Uključeno',
+    this.color = Colors.grey,
+  });
+}
+
 // ------------------------------------------------------------------
-// --- MODEL ZA LIVE MJERENJE SENZORA (koristi se za V/A graf) ---
+// --- MODELI ZA LIVE PODATKE ---
+// ------------------------------------------------------------------
+
+// --- NOVI MODEL: Live podaci specifično za ECU POD (EB1) ---
+class EcuPodData {
+  // Napajanje i Mase
+  final double pinH2Voltage;
+  final double pinM4Voltage;
+  final bool pinL1GndStatus;
+  final bool pinM2GndStatus;
+  final bool pinM3GndStatus;
+
+  // Start Sustav
+  final bool pinD1Continuity;
+  final double pinD1Resistance;
+  final bool pinL4GndStatus;
+
+  // Sustav Goriva
+  final bool pinM1GndStatus;
+
+  // DESS Ključ
+  final bool pinF2GndStatus;
+
+  // NTC Senzori
+  final double egtsResistance;
+  final double egtsVoltage;
+  final double ltsResistance;
+  final double ltsVoltage;
+
+  // CAN Sabirnica (Test Linije)
+  final double canResistance;
+  final double canHVoltage;
+  final double canLVoltage;
+
+  // TPS Senzori
+  final double tps1Voltage5V;
+  final bool tps1GndStatus;
+  final double tps1SignalVoltage;
+  final double tps2Voltage5V;
+  final bool tps2GndStatus;
+  final double tps2SignalVoltage;
+
+  // Konstruktor s početnim (default) vrijednostima
+  EcuPodData({
+    this.pinH2Voltage = 0.0,
+    this.pinM4Voltage = 0.0,
+    this.pinL1GndStatus = false,
+    this.pinM2GndStatus = false,
+    this.pinM3GndStatus = false,
+    this.pinD1Continuity = false,
+    this.pinD1Resistance = 0.0,
+    this.pinL4GndStatus = false,
+    this.pinM1GndStatus = false,
+    this.pinF2GndStatus = false,
+    this.egtsResistance = 0.0,
+    this.egtsVoltage = 0.0,
+    this.ltsResistance = 0.0,
+    this.ltsVoltage = 0.0,
+    this.canResistance = 0.0,
+    this.canHVoltage = 0.0,
+    this.canLVoltage = 0.0,
+    this.tps1Voltage5V = 0.0,
+    this.tps1GndStatus = false,
+    this.tps1SignalVoltage = 0.0,
+    this.tps2Voltage5V = 0.0,
+    this.tps2GndStatus = false,
+    this.tps2SignalVoltage = 0.0,
+  });
+
+  // Factory konstruktor za kreiranje objekta iz JSON-a koji šalje firmware
+  factory EcuPodData.fromJson(Map<String, dynamic> json) {
+    return EcuPodData(
+      pinH2Voltage: (json['h2_v'] ?? 0.0).toDouble(),
+      pinM4Voltage: (json['m4_v'] ?? 0.0).toDouble(),
+      pinL1GndStatus: json['l1_gnd'] ?? false,
+      pinM2GndStatus: json['m2_gnd'] ?? false,
+      pinM3GndStatus: json['m3_gnd'] ?? false,
+      pinD1Continuity: json['d1_cont'] ?? false,
+      pinD1Resistance: (json['d1_res'] ?? 0.0).toDouble(),
+      pinL4GndStatus: json['l4_gnd'] ?? false,
+      pinM1GndStatus: json['m1_gnd'] ?? false,
+      pinF2GndStatus: json['f2_gnd'] ?? false,
+      egtsResistance: (json['egts_res'] ?? 0.0).toDouble(),
+      egtsVoltage: (json['egts_v'] ?? 0.0).toDouble(),
+      ltsResistance: (json['lts_res'] ?? 0.0).toDouble(),
+      ltsVoltage: (json['lts_v'] ?? 0.0).toDouble(),
+      canResistance: (json['can_res'] ?? 0.0).toDouble(),
+      canHVoltage: (json['can_h_v'] ?? 0.0).toDouble(),
+      canLVoltage: (json['can_l_v'] ?? 0.0).toDouble(),
+      tps1Voltage5V: (json['tps1_5v'] ?? 0.0).toDouble(),
+      tps1GndStatus: json['tps1_gnd'] ?? false,
+      tps1SignalVoltage: (json['tps1_sig_v'] ?? 0.0).toDouble(),
+      tps2Voltage5V: (json['tps2_5v'] ?? 0.0).toDouble(),
+      tps2GndStatus: json['tps2_gnd'] ?? false,
+      tps2SignalVoltage: (json['tps2_sig_v'] ?? 0.0).toDouble(),
+    );
+  }
+}
+
+// --- POSTOJEĆI MODELI ---
 class LiveData {
   final double measuredVoltage;
   final double measuredCurrent;
@@ -37,8 +149,6 @@ class LiveData {
     this.measuredCurrent = 0.0,
   });
 
-  static LiveData initial() => LiveData();
-
   factory LiveData.fromJson(Map<String, dynamic> json) {
     return LiveData(
       measuredVoltage: (json['Voltage'] ?? 0.0).toDouble(),
@@ -47,8 +157,6 @@ class LiveData {
   }
 }
 
-// ------------------------------------------------------------------
-// --- NOVI MODEL ZA LIVE CAN DASHBOARD ---
 class CanLiveData {
   final double rpm;
   final double throttlePercent;
@@ -60,7 +168,6 @@ class CanLiveData {
   final double intakeTemp;
   final double exhaustTemp;
   final double batteryVoltage;
-  // PROMJENA (Točka 10): Mjenjač (gear) zamijenjen s IBR Pozicijom
   final double ibrPosition;
 
   CanLiveData({
@@ -74,10 +181,8 @@ class CanLiveData {
     this.intakeTemp = 0.0,
     this.exhaustTemp = 0.0,
     this.batteryVoltage = 0.0,
-    this.ibrPosition = 0.0, // Inicijalna vrijednost
+    this.ibrPosition = 0.0,
   });
-
-  static CanLiveData initial() => CanLiveData();
 
   factory CanLiveData.fromJson(Map<String, dynamic> json) {
     return CanLiveData(
@@ -91,14 +196,11 @@ class CanLiveData {
       intakeTemp: (json['intakeTemp'] ?? 0.0).toDouble(),
       exhaustTemp: (json['exhaustTemp'] ?? 0.0).toDouble(),
       batteryVoltage: (json['batteryVoltage'] ?? 0.0).toDouble(),
-      // PROMJENA: Očekujemo 'ibrPosition' umjesto 'gear'
       ibrPosition: (json['ibrPosition'] ?? 0.0).toDouble(),
     );
   }
 }
 
-// ------------------------------------------------------------------
-// --- MODEL ZA SPECIFIKACIJU I TRENUTNO MJERENJE OTpora SENZORA ---
 class TemperatureSensorSpec {
   final String id;
   final String name;
@@ -116,18 +218,4 @@ class TemperatureSensorSpec {
     this.measuredResistance,
     this.status = 'pending',
   });
-
-  TemperatureSensorSpec copyWith({
-    double? measuredResistance,
-    String? status,
-  }) {
-    return TemperatureSensorSpec(
-      id: id,
-      name: name,
-      ecuPinout: ecuPinout,
-      resistanceTable: resistanceTable,
-      measuredResistance: measuredResistance ?? this.measuredResistance,
-      status: status ?? this.status,
-    );
-  }
 }

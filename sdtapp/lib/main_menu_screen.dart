@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 // Uvozimo SVE modele i podatke iz centralnih datoteka
 import 'models.dart';
 import 'main_scaffold.dart';
-import 'sensor_data.dart'; // Uvozi mainMenuCategories i temperatureSensorItems
+import 'sensor_data.dart';
 import 'temperature_sensors_screen.dart';
 import 'can_live_screen.dart';
 import 'settings_screen.dart';
-import 'app_routes.dart'; // KLJUČAN IMPORT KOJI JE NEDOSTAJAO
+import 'app_routes.dart';
+import 'pod_dashboard_screen.dart'; // DODAN IMPORT ZA NOVI EKRAN
 
 // Pomoćni widget za neimplementirane funkcionalnosti
 class PlaceholderScreen extends StatelessWidget {
@@ -90,8 +91,6 @@ class SubCategoryScreen extends StatelessWidget {
     return MainScaffold(
       title: category.name,
       appBar: AppBar(title: Text(category.name)),
-
-      // IMPLEMENTACIJA GRID VIEW-a ZA PODKATEGORIJE
       body: GridView.builder(
         padding: const EdgeInsets.all(16.0),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -108,22 +107,22 @@ class SubCategoryScreen extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 Widget screen;
+                // --- SWITCH BLOK JE AŽURIRAN ---
                 switch (item.routeName) {
+                  case AppRoutes.podDashboard: // DODAN NOVI SLUČAJ
+                    screen = const PodDashboardScreen();
+                    break;
                   case AppRoutes.temperatureSensors:
-                    // VRAĆANJE PRAVOG EKRANA ZA SENZORE
                     screen = TemperatureSensorsScreen(
                       sensors: temperatureSensorItems,
                     );
                     break;
-
                   case AppRoutes.canLiveData:
                     screen = const CanLiveScreen();
                     break;
-
                   case AppRoutes.settings:
                     screen = const SettingsScreen();
                     break;
-
                   default:
                     screen = PlaceholderScreen(title: item.name);
                     break;
@@ -134,8 +133,9 @@ class SubCategoryScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.build,
-                      size: 48, color: Theme.of(context).colorScheme.secondary),
+                  // S obzirom da sada imamo samo jednu podkategoriju, ikona je fiksna
+                  const Icon(Icons.developer_board,
+                      size: 48, color: Colors.blueGrey),
                   const SizedBox(height: 12),
                   Text(
                     item.name,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'models.dart';
-import 'app_routes.dart'; // DODAN KLJUČAN IMPORT KOJI JE NEDOSTAJAO
+import 'app_routes.dart';
 
 // --- MODEL ZA REFERENTNU TABLICU ---
 class ReferenceEntry {
@@ -39,6 +39,7 @@ Map<int, int> _createResistanceMap(List<ReferenceEntry> entries) {
 }
 
 // --- Lista temperature senzora (statični podaci i pinout) ---
+// Ovi podaci ostaju za sada, koristit ćemo ih kasnije unutar POD Dashboarda
 final List<TemperatureSensorSpec> temperatureSensorItems = [
   TemperatureSensorSpec(
       id: 'EGTS',
@@ -67,7 +68,7 @@ final List<TemperatureSensorSpec> temperatureSensorItems = [
       resistanceTable: _createResistanceMap(detailedResistanceTable)),
 ];
 
-// --- Glavna struktura izbornika ---
+// --- Glavna struktura izbornika (AŽURIRANO) ---
 final List<MainMenuCategory> mainMenuCategories = [
   MainMenuCategory(
     name: "CAN Tools",
@@ -78,13 +79,15 @@ final List<MainMenuCategory> mainMenuCategories = [
       SubCategoryItem(name: 'Aktuatori', routeName: '/can/actuators'),
     ],
   ),
+  // --- IZMIJENJENA KATEGORIJA ---
   MainMenuCategory(
-    name: "SENZORI",
-    icon: Icons.sensors,
+    name: "POD Testovi", // Novo ime
+    icon: Icons.memory, // Nova, prikladnija ikona za POD/modul
     subCategories: [
+      // Sada imamo samo jednu "podkategoriju" koja vodi na budući dashboard
       SubCategoryItem(
-          name: 'Temp Sens', routeName: AppRoutes.temperatureSensors),
-      SubCategoryItem(name: 'Pritisak', routeName: '/sensors/pressure'),
+          name: 'Otvori Dashboard',
+          routeName: AppRoutes.podDashboard), // Nova ruta
     ],
   ),
 ];
