@@ -23,6 +23,7 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
   switch (type) {
     case WS_EVT_CONNECT: {
       Serial.printf("WebSocket klijent #%u spojen sa IP: %s\n", client->id(), client->remoteIP().toString().c_str());
+      digitalWrite(CLIENT_LED_PIN, HIGH); // VRAĆENO: Upali plavu LED
       
       // Odmah po spajanju, šaljemo trenutni status POD-a novom klijentu
       StaticJsonDocument<200> doc;
@@ -37,6 +38,7 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
     }
     case WS_EVT_DISCONNECT:
       Serial.printf("WebSocket klijent #%u odspojen\n", client->id());
+      digitalWrite(CLIENT_LED_PIN, LOW); // VRAĆENO: Ugasi plavu LED
       break;
     case WS_EVT_DATA: {
       AwsFrameInfo *info = (AwsFrameInfo*)arg;
@@ -96,8 +98,18 @@ void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsE
 void setup() {
   Serial.begin(115200);
 
+  // --- VRAĆENO: Postavljanje LED pinova ---
+  pinMode(AP_LED_PIN, OUTPUT);
+  pinMode(CLIENT_LED_PIN, OUTPUT);
+  pinMode(CAN_LED_PIN, OUTPUT);
+  digitalWrite(AP_LED_PIN, LOW);
+  digitalWrite(CLIENT_LED_PIN, LOW);
+  digitalWrite(CAN_LED_PIN, LOW);
+
   // Postavljanje Wi-Fi Access Pointa
   WiFi.softAP(ssid, password);
+  digitalWrite(AP_LED_PIN, HIGH); // VRAĆENO: Upali zelenu LED kad je AP spreman
+  
   Serial.println("\nAP pokrenut.");
   Serial.print("SSID: ");
   Serial.println(ssid);
