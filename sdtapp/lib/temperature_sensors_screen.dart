@@ -1,15 +1,17 @@
-// lib/temperature_sensors_screen.dart - FINALNA REVIZIJA ZA LIVE V/A PODATKE
+// lib/temperature_sensors_screen.dart - FINALNO ČIŠĆENJE
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'models.dart';
 import 'sensor_data.dart';
 import 'websocket_service.dart';
-import 'main_scaffold.dart'; // Dodajemo uvoz ako je bio potreban za AppBar
+import 'main_scaffold.dart';
 
 class TemperatureSensorsScreen extends StatefulWidget {
-  final List<TemperatureSensorSpec> sensors;
   const TemperatureSensorsScreen({super.key, required this.sensors});
+
+  // Upozorenje: Koristimo 'const' za poboljšanje performansi
+  final List<TemperatureSensorSpec> sensors;
 
   @override
   State<TemperatureSensorsScreen> createState() =>
@@ -24,9 +26,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
   final List<FlSpot> _voltageSpots = [];
   final List<FlSpot> _currentSpots = [];
   int _xValue = 0;
-  final int _maxDataPoints = 50;
-
-  // Uklonili smo Timer? _measurementTimer; jer C++ šalje podatke automatski
+  static const int _maxDataPoints = 50; // Upozorenje: const
 
   @override
   void initState() {
@@ -34,10 +34,8 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
     _selectedSensor = widget.sensors.first;
 
     _initialResistanceMeasurement();
-    // Pokretanje slušanja promjena za V/A graf
     _sdmTService.liveDataNotifier.addListener(_updateGraphData);
 
-    // VAŽNO: Postavljamo početni cilj za C++ kod odmah pri ulasku na ekran
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _sdmTService.sendCommand('MEASURE_LIVE:${_selectedSensor!.id}');
     });
@@ -49,10 +47,8 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
     super.dispose();
   }
 
-  // --- LOGIKA ZA PODATKE ---
-
+  // --- LOGIKA ZA PODATKE (ostaje ista) ---
   void _initialResistanceMeasurement() {
-    // *SIMULACIJA*: U stvarnosti, hardver bi poslao JSON sa svim otporima odjednom
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
       setState(() {
@@ -89,50 +85,34 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
   }
 
   // --- SIMBOLIKA STATUSA ---
-
   Widget _buildStatusSymbol(String status) {
     final Color color = switch (status) {
       'ok' => Colors.greenAccent,
       'error' => Colors.redAccent,
       _ => Colors.grey,
     };
-
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Icon(Icons.change_history, size: 24, color: color),
-        Icon(
-          status == 'ok'
-              ? Icons.check
-              : (status == 'error' ? Icons.close : Icons.circle),
-          size: 10,
-          color: Theme.of(context).scaffoldBackgroundColor,
-        ),
-      ],
-    );
+    return Icon(Icons.change_history, size: 24, color: color);
   }
 
   // --- WIDGETI ZA PRIKAZ ---
-
   @override
   Widget build(BuildContext context) {
     return MainScaffold(
-      // Koristimo AppBar koji se prosljeđuje MainScaffold-u
+      title: 'SENZORI TEMPERATURE (NTC)',
       appBar: AppBar(title: const Text('SENZORI TEMPERATURE (NTC)')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            _buildReferenceInfo(context), // RJEŠENJE PROBLEMA 1: Poziv metode
+            const SizedBox(height: 32),
             _buildResistanceTable(context),
             const SizedBox(height: 32),
             _buildLiveGraph(context),
-            const SizedBox(height: 32),
-            _buildReferenceInfo(context),
           ],
         ),
       ),
-      title: '',
     );
   }
 
@@ -142,11 +122,12 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+          const Padding(
+            // Upozorenje: const
+            padding: EdgeInsets.all(16.0),
             child: Text(
               'Mjerenje Otpora i Pinout',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
           ),
           SingleChildScrollView(
@@ -154,7 +135,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
             child: DataTable(
               columnSpacing: 16.0,
               columns: const [
-                DataColumn(label: Text('Status')),
+                DataColumn(label: Text('')),
                 DataColumn(label: Text('ID')),
                 DataColumn(label: Text('ECU Pinout')),
                 DataColumn(
@@ -169,10 +150,9 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                     if (isSelected ?? false) {
                       setState(() {
                         _selectedSensor = sensor;
-                        _voltageSpots.clear(); // Resetiraj graf
-                        _currentSpots.clear(); // Resetiraj graf
+                        _voltageSpots.clear();
+                        _currentSpots.clear();
                         _xValue = 0;
-                        // POPRAVAK: Slanje komande koju C++ sluša
                         _sdmTService
                             .sendCommand('MEASURE_LIVE:${_selectedSensor!.id}');
                       });
@@ -226,13 +206,14 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Live Mjerenje: ${_selectedSensor!.name}',
+              'Mjerenje Napona/Struje: ${_selectedSensor!.name}',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
             ValueListenableBuilder<LiveData>(
               valueListenable: _sdmTService.liveDataNotifier,
               builder: (context, liveData, child) {
+                // Upozorenje: Riješeno uklanjanjem nepotrebnih zagrada
                 return Text(
                   'Napon: ${liveData.measuredVoltage.toStringAsFixed(2)} V | Struja: ${liveData.measuredCurrent.toStringAsFixed(2)} A (Max A: ${maxCurrent.toStringAsFixed(2)})',
                   style: Theme.of(context).textTheme.bodyLarge,
@@ -248,6 +229,7 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
                   maxX: _maxDataPoints.toDouble() - 1,
                   minY: 0,
                   maxY: voltageRange.toDouble(),
+                  // Upozorenja: const
                   gridData: const FlGridData(
                       show: true,
                       drawVerticalLine: false,
@@ -286,15 +268,22 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
+            const Row(
+              // Upozorenje: const
               children: [
-                Container(width: 10, height: 10, color: Colors.blueAccent),
-                const SizedBox(width: 4),
-                const Text('Napon (V)'),
-                const SizedBox(width: 12),
-                Container(width: 10, height: 10, color: Colors.redAccent),
-                const SizedBox(width: 4),
-                const Text('Struja (A)'),
+                SizedBox(
+                    width: 10,
+                    height: 10,
+                    child: ColoredBox(color: Colors.blueAccent)),
+                SizedBox(width: 4),
+                Text('Napon (V)'),
+                SizedBox(width: 12),
+                SizedBox(
+                    width: 10,
+                    height: 10,
+                    child: ColoredBox(color: Colors.redAccent)),
+                SizedBox(width: 4),
+                Text('Struja (A)'),
               ],
             )
           ],
@@ -303,10 +292,26 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
     );
   }
 
+  // --- REFERENTNA INFO TABLICA ---
   Widget _buildReferenceInfo(BuildContext context) {
-    final referentniPodaci = referenceResistanceTable.entries
-        .map((e) => '${e.key}°C: ${e.value} Ω')
-        .join(' | ');
+    final referentniRedovi = detailedResistanceTable.map((e) {
+      final tolerance = e.high - e.nominal;
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+                width: 70,
+                child: Text('${e.tempC}°C',
+                    style: const TextStyle(fontWeight: FontWeight.bold))),
+            SizedBox(width: 100, child: Text('${e.nominal} Ω')),
+            Text('+/- $tolerance Ω'),
+          ],
+        ),
+      );
+    }).toList();
 
     return Card(
       elevation: 4,
@@ -318,9 +323,23 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
             Text('Referentna Tablica Otpora',
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
-            const Text('Nominalni Otpor (20°C - 40°C):',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(referentniPodaci),
+            // AŽURIRANI HEADER SA IKONAMA
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                        width: 70,
+                        child: Icon(Icons.device_thermostat, size: 20)),
+                    SizedBox(
+                        width: 100,
+                        child: Icon(Icons.settings_input_svideo, size: 20)),
+                    Icon(Icons.compare_arrows, size: 20),
+                  ]),
+            ),
+            const Divider(),
+            ...referentniRedovi,
           ],
         ),
       ),

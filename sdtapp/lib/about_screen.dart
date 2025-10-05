@@ -1,3 +1,4 @@
+// lib/about_screen.dart - INFORMACIJE O PROJEKTU
 import 'package:flutter/material.dart';
 import 'main_scaffold.dart';
 
@@ -7,41 +8,56 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MainScaffold(
-      title: 'O Aplikaciji SDT',
-      body: const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          // Omogućava skrolanje ako je tekst duži
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'SDT - Sustav za Dijagnostiku i Testiranje',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Verzija: 1.0.0',
-                style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-              ),
-              SizedBox(height: 24),
-              Text(
-                'Ova aplikacija je razvijena kao dio završnog rada i služi za dijagnostiku i testiranje elektroničkih sustava vozila putem CAN sabirnice.',
-                style: TextStyle(fontSize: 16),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Autor: [Tvoje Ime i Prezime]', // <-- OVDJE UPIŠI SVOJE IME
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Mentor: [Ime Mentora]', // <-- OVDJE UPIŠI IME MENTORA
-                style: TextStyle(fontSize: 16),
-              ),
-            ],
-          ),
+      title: 'O SDTpro',
+      appBar: AppBar(title: const Text('O SDTpro Dijagnostici')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('SeaDooTool PRO',
+                style: Theme.of(context).textTheme.headlineMedium),
+            const Divider(),
+
+            // --- INFORMACIJE O APLIKACIJI ---
+            Text('Softver (Flutter App)',
+                style: Theme.of(context).textTheme.titleLarge),
+            _buildInfoRow('Verzija Aplikacije:', '1.3 (Final UI)'),
+            _buildInfoRow('Arhitektura:', 'Flutter / Dart'),
+            _buildInfoRow('Upravljanje Stanjem:', 'ValueNotifier / Singleton'),
+            const SizedBox(height: 20),
+
+            // --- INFORMACIJE O HARDVERU ---
+            Text('Firmware & Hardver',
+                style: Theme.of(context).textTheme.titleLarge),
+            _buildInfoRow('Core MCU:', 'ESP32-32D'),
+            _buildInfoRow('CAN Transceiver:', 'SN65HVD230/VP230 (3.3V)'),
+            _buildInfoRow('CAN Brzina:', '500 kbps'),
+            _buildInfoRow('Framework:', 'Arduino (PlatformIO)'),
+            _buildInfoRow('Komunikacija:', 'WebSocket na 192.168.4.1/ws'),
+            const SizedBox(height: 20),
+
+            // --- LED Status ---
+            Text('Status LED Indikatori:',
+                style: Theme.of(context).textTheme.titleMedium),
+            _buildInfoRow('Zelena (D13):', 'AP Status (Uključeno)'),
+            _buildInfoRow('Plava (D12):', 'Klijent Spojen (Aplikacija)'),
+            _buildInfoRow('Žuta (D14):', 'CAN Aktivnost (Treperi)'),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          Text(value),
+        ],
       ),
     );
   }

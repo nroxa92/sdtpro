@@ -1,10 +1,10 @@
-// lib/can_live_screen.dart - KOMPLETAN DASHBOARD ZA LIVE CAN PODATKE
+// lib/can_live_screen.dart - FINALNA VERZIJA ZA IBR I LISTU
 import 'package:flutter/material.dart';
 import 'models.dart';
 import 'websocket_service.dart';
 import 'main_scaffold.dart';
 
-// Pomoćni widget za prikaz pojedinačnog mjerenja
+// Pomoćni widget za prikaz pojedinačnog mjerenja (DataTile)
 class DataTile extends StatelessWidget {
   final String label;
   final String value;
@@ -65,21 +65,19 @@ class CanLiveScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Koristimo SdmTService Singleton
     final sdmTService = SdmTService();
 
+    // Dodajemo title argument u MainScaffold
     return MainScaffold(
+      title: 'CAN Bus Live Data',
       appBar: AppBar(title: const Text('CAN Bus Live Data')),
       body: ValueListenableBuilder<CanLiveData>(
         valueListenable: sdmTService.canLiveDataNotifier,
         builder: (context, canData, child) {
-          return GridView.count(
-            crossAxisCount: 2,
+          // PROMJENA (Točka 10): Koristimo ListView umjesto GridView
+          return ListView(
             padding: const EdgeInsets.all(16.0),
-            crossAxisSpacing: 16.0,
-            mainAxisSpacing: 16.0,
             children: [
-              // 1. OKRETAJI MOTORA (RPM)
               DataTile(
                 label: 'RPM',
                 value: canData.rpm.toStringAsFixed(0),
@@ -87,8 +85,8 @@ class CanLiveScreen extends StatelessWidget {
                 color:
                     canData.rpm > 5000 ? Colors.redAccent : Colors.greenAccent,
               ),
+              const SizedBox(height: 8),
 
-              // 2. TEMPERATURA VODE (ECT)
               DataTile(
                 label: 'Temp. Vode (ECT)',
                 value: canData.coolantTemp.toStringAsFixed(1),
@@ -96,64 +94,64 @@ class CanLiveScreen extends StatelessWidget {
                 color:
                     canData.coolantTemp > 95 ? Colors.redAccent : Colors.yellow,
               ),
+              const SizedBox(height: 8),
 
-              // 3. BRZINA (SPEED)
               DataTile(
                 label: 'Brzina',
                 value: canData.speedKmh.toStringAsFixed(0),
                 unit: 'km/h',
                 color: Colors.blueAccent,
               ),
+              const SizedBox(height: 8),
 
-              // 4. GAS (THROTTLE)
               DataTile(
                 label: 'Gas (Throttle)',
                 value: canData.throttlePercent.toStringAsFixed(1),
                 unit: '%',
                 color: Colors.orangeAccent,
               ),
+              const SizedBox(height: 8),
 
-              // 5. TLAK U USISNOJ GRANI (MAP)
               DataTile(
                 label: 'MAP Tlak',
                 value: canData.mapKpa.toStringAsFixed(0),
                 unit: 'hPa',
                 color: Colors.tealAccent,
               ),
+              const SizedBox(height: 8),
 
-              // 6. TEMPERATURA ULJA (EOT)
               DataTile(
                 label: 'Temp. Ulja (EOT)',
                 value: canData.oilTemp.toStringAsFixed(1),
                 unit: '°C',
                 color: canData.oilTemp > 120 ? Colors.red : Colors.lightGreen,
               ),
+              const SizedBox(height: 8),
 
-              // 7. RAZINA GORIVA
               DataTile(
                 label: 'Razina Goriva',
                 value: canData.fuelLevel.toStringAsFixed(0),
                 unit: '%',
                 color: Colors.purpleAccent,
               ),
+              const SizedBox(height: 8),
 
-              // 8. TEMPERATURA ISPUHA (EGT)
               DataTile(
                 label: 'Temp. Ispuha (EGT)',
                 value: canData.exhaustTemp.toStringAsFixed(0),
                 unit: '°C',
                 color: Colors.pinkAccent,
               ),
+              const SizedBox(height: 8),
 
-              // 9. TEMP. USISA (MAT)
               DataTile(
                 label: 'Temp. Usisa (MAT)',
                 value: canData.intakeTemp.toStringAsFixed(1),
                 unit: '°C',
                 color: Colors.cyan,
               ),
+              const SizedBox(height: 8),
 
-              // 10. NAPON AKUMULATORA
               DataTile(
                 label: 'Napon Bat.',
                 value: canData.batteryVoltage.toStringAsFixed(1),
@@ -161,11 +159,12 @@ class CanLiveScreen extends StatelessWidget {
                 color:
                     canData.batteryVoltage < 11.5 ? Colors.red : Colors.yellow,
               ),
+              const SizedBox(height: 8),
 
-              // Dodajte još jednu pločicu za mjenjač (Gear) ako ga hardver šalje
+              // ISPRAVAK GREŠKE: Mjenjač/Gear zamijenjen s iBR Pozicijom
               DataTile(
-                label: 'Mjenjač',
-                value: canData.gear.toString(),
+                label: 'iBR Pozicija',
+                value: canData.ibrPosition.toStringAsFixed(1),
                 unit: '',
                 color: Colors.lightBlue,
               ),
@@ -173,7 +172,6 @@ class CanLiveScreen extends StatelessWidget {
           );
         },
       ),
-      title: '',
     );
   }
 }

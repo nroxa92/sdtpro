@@ -1,14 +1,15 @@
-// lib/main_menu_screen.dart - REVIDIRANA VERZIJA (Rješava problem "Uskoro...")
+// lib/main_menu_screen.dart - KONAČNA NAVIGACIJA
 import 'package:flutter/material.dart';
 
 // Uvozimo SVE modele i podatke iz centralnih datoteka
 import 'models.dart';
 import 'main_scaffold.dart';
-import 'sensor_data.dart'; // Uvozi mainMenuCategories i temperatureSensorItems
-import 'temperature_sensors_screen.dart';
-import 'can_live_screen.dart'; // Uvozimo stvarni ekran za Live CAN podatke
+import 'sensor_data.dart'; // Uvozi AppRoutes, mainMenuCategories i temperatureSensorItems
+import 'temperature_sensors_screen.dart'; // VRAĆENO
+import 'can_live_screen.dart';
+import 'settings_screen.dart';
 
-// Privremeni prazni ekrani za neimplementirane funkcionalnosti
+// Pomoćni widget za neimplementirane funkcionalnosti
 class PlaceholderScreen extends StatelessWidget {
   final String title;
   const PlaceholderScreen({super.key, required this.title});
@@ -23,12 +24,14 @@ class MainMenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Koristimo centraliziranu listu iz sensor_data.dart
     final menuCategories = mainMenuCategories;
 
     return MainScaffold(
-      title: 'SDT Glavni Izbornik',
-      // Koristimo GridView za bolji UX kao što smo planirali ranije
+      title: 'SeaDooTool',
+      appBar: AppBar(
+        title: const Text('SeaDooTool'),
+        centerTitle: true,
+      ),
       body: GridView.builder(
         padding: const EdgeInsets.all(16.0),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -86,29 +89,39 @@ class SubCategoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MainScaffold(
       title: category.name,
-      body: ListView.builder(
+      appBar: AppBar(title: Text(category.name)),
+
+      // IMPLEMENTACIJA GRID VIEW-a ZA PODKATEGORIJE
+      body: GridView.builder(
+        padding: const EdgeInsets.all(16.0),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 1.2,
+        ),
         itemCount: category.subCategories.length,
         itemBuilder: (context, index) {
           final item = category.subCategories[index];
           return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-            child: ListTile(
-              title: Text(item.name),
-              subtitle:
-                  item.description != null ? Text(item.description!) : null,
-              trailing: const Icon(Icons.arrow_forward_ios),
+            elevation: 4,
+            child: InkWell(
               onTap: () {
                 Widget screen;
                 switch (item.routeName) {
                   case AppRoutes.temperatureSensors:
-                    // Prosljeđujemo listu senzora ekranu
+                    // VRAĆANJE PRAVOG EKRANA ZA SENZORE
                     screen = TemperatureSensorsScreen(
                       sensors: temperatureSensorItems,
                     );
                     break;
 
-                  case AppRoutes.canLiveData: // RJEŠENJE ZA CAN BUS LIVE
-                    screen = const CanLiveScreen(); // Navigira na stvarni ekran
+                  case AppRoutes.canLiveData:
+                    screen = const CanLiveScreen();
+                    break;
+
+                  case AppRoutes.settings:
+                    screen = const SettingsScreen();
                     break;
 
                   default:
@@ -118,6 +131,19 @@ class SubCategoryScreen extends StatelessWidget {
                 Navigator.push(
                     context, MaterialPageRoute(builder: (context) => screen));
               },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.build,
+                      size: 48, color: Theme.of(context).colorScheme.secondary),
+                  const SizedBox(height: 12),
+                  Text(
+                    item.name,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ),
             ),
           );
         },

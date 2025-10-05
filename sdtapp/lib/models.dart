@@ -1,4 +1,4 @@
-// lib/models.dart - KOMPLETNA VERZIJA S CAN_LIVE_DATA
+// lib/models.dart - KOMPLETNA VERZIJA S IBR_POSITION
 import 'package:flutter/material.dart';
 
 // --- MODELI ZA STRUKTURU I NAVIGACIJU IZBORNIKA ---
@@ -49,7 +49,6 @@ class LiveData {
 
 // ------------------------------------------------------------------
 // --- NOVI MODEL ZA LIVE CAN DASHBOARD ---
-// Rješava sve greške u websocket_service.dart i can_live_screen.dart
 class CanLiveData {
   final double rpm;
   final double throttlePercent;
@@ -61,7 +60,8 @@ class CanLiveData {
   final double intakeTemp;
   final double exhaustTemp;
   final double batteryVoltage;
-  final int gear;
+  // PROMJENA (Točka 10): Mjenjač (gear) zamijenjen s IBR Pozicijom
+  final double ibrPosition;
 
   CanLiveData({
     this.rpm = 0.0,
@@ -74,14 +74,13 @@ class CanLiveData {
     this.intakeTemp = 0.0,
     this.exhaustTemp = 0.0,
     this.batteryVoltage = 0.0,
-    this.gear = 0,
+    this.ibrPosition = 0.0, // Inicijalna vrijednost
   });
 
   static CanLiveData initial() => CanLiveData();
 
   factory CanLiveData.fromJson(Map<String, dynamic> json) {
     return CanLiveData(
-      // Koristimo ključeve iz revidiranog C++ Firmwarea (main.cpp)
       rpm: (json['rpm'] ?? 0.0).toDouble(),
       throttlePercent: (json['throttlePercent'] ?? 0.0).toDouble(),
       coolantTemp: (json['coolantTemp'] ?? 0.0).toDouble(),
@@ -92,7 +91,8 @@ class CanLiveData {
       intakeTemp: (json['intakeTemp'] ?? 0.0).toDouble(),
       exhaustTemp: (json['exhaustTemp'] ?? 0.0).toDouble(),
       batteryVoltage: (json['batteryVoltage'] ?? 0.0).toDouble(),
-      gear: (json['gear'] ?? 0) as int, // Gear je cijeli broj
+      // PROMJENA: Očekujemo 'ibrPosition' umjesto 'gear'
+      ibrPosition: (json['ibrPosition'] ?? 0.0).toDouble(),
     );
   }
 }
