@@ -1,13 +1,13 @@
-// lib/main_menu_screen.dart - KONAČNA NAVIGACIJA
 import 'package:flutter/material.dart';
 
 // Uvozimo SVE modele i podatke iz centralnih datoteka
 import 'models.dart';
 import 'main_scaffold.dart';
-import 'sensor_data.dart'; // Uvozi AppRoutes, mainMenuCategories i temperatureSensorItems
-import 'temperature_sensors_screen.dart'; // VRAĆENO
+import 'sensor_data.dart'; // Uvozi mainMenuCategories i temperatureSensorItems
+import 'temperature_sensors_screen.dart';
 import 'can_live_screen.dart';
 import 'settings_screen.dart';
+import 'app_routes.dart'; // KLJUČAN IMPORT KOJI JE NEDOSTAJAO
 
 // Pomoćni widget za neimplementirane funkcionalnosti
 class PlaceholderScreen extends StatelessWidget {

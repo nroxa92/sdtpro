@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+
 // Uvezite sve potrebne datoteke
 import 'hive_database.dart';
 import 'main_menu_screen.dart';
 import 'app_theme.dart';
-import 'sensor_data.dart'; // Potrebno za AppRoutes
-import 'settings_screen.dart'; // Potrebno za rutu /settings
-// Budući da AboutScreen mora raditi (poziva ga SettingsScreen), uvest ćemo i njega.
+import 'settings_screen.dart';
 import 'about_screen.dart';
+import 'app_routes.dart'; // KLJUČAN IMPORT KOJI JE NEDOSTAJAO
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

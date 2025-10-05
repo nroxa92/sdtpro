@@ -1,4 +1,3 @@
-// lib/temperature_sensors_screen.dart - KONAČNI POPRAVAK SELEKCIJE I UI-ja
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -30,13 +29,17 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedSensor = widget.sensors.first;
+    if (widget.sensors.isNotEmpty) {
+      _selectedSensor = widget.sensors.first;
+    }
 
     _initialResistanceMeasurement();
     _sdmTService.liveDataNotifier.addListener(_updateGraphData);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _sdmTService.sendCommand('MEASURE_LIVE:${_selectedSensor!.id}');
+      if (_selectedSensor != null) {
+        _sdmTService.sendCommand('MEASURE_LIVE:${_selectedSensor!.id}');
+      }
     });
   }
 
@@ -144,7 +147,6 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
             scrollDirection: Axis.horizontal,
             child: DataTable(
               columnSpacing: 16.0,
-              // UKLANJAMO 'selected' STILIZACIJU NA RAZINI TABLICE
               showCheckboxColumn: false, // OVO RJEŠAVA PROBLEM KVADRATIĆA!
               columns: const [
                 DataColumn(label: Text('')),
@@ -157,16 +159,15 @@ class _TemperatureSensorsScreenState extends State<TemperatureSensorsScreen> {
               rows: widget.sensors.map((sensor) {
                 final isSelected = _selectedSensor == sensor;
 
-                // Ručna kontrola pozadine retka za selekciju
-                final rowColor = isSelected
-                    ? Theme.of(context).primaryColor.withOpacity(0.2)
-                    : Colors.transparent;
-
                 return DataRow(
-                  // Postavljanje pozadine i onTapa na cijeli redak
-                  color: WidgetStateProperty.all(rowColor),
-                  onSelectChanged: (_) => _handleRowTap(
-                      sensor), // Koristimo onSelectChanged za cijeli redak
+                  color: WidgetStateProperty.resolveWith<Color?>(
+                      (Set<WidgetState> states) {
+                    if (isSelected) {
+                      return Theme.of(context).primaryColor.withAlpha(75);
+                    }
+                    return null; // Koristi defaultnu boju
+                  }),
+                  onSelectChanged: (_) => _handleRowTap(sensor),
                   cells: [
                     DataCell(_buildStatusSymbol(sensor.status)),
                     DataCell(Text(sensor.id)),
